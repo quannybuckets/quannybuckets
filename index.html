@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QuannyBuckets | College Basketball Analytics</title>
+<style>
+:root {
+  --bg:#090d18; --panel:#121a2b; --panel2:#182238;
+  --text:#f3f6ff; --muted:#91a0ba; --blue:#548cff;
+  --green:#35d49a; --border:#26334c;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);
+font-family:Arial,Helvetica,sans-serif}
+header{padding:22px 6%;border-bottom:1px solid var(--border);
+display:flex;justify-content:space-between;align-items:center;gap:15px}
+.logo{font-size:25px;font-weight:900;letter-spacing:-1px}
+.logo span{color:var(--blue)}
+.status{font-size:12px;color:var(--muted);background:var(--panel);
+padding:9px 13px;border-radius:20px}
+main{max-width:1200px;margin:auto;padding:32px 22px}
+h1{font-size:34px;margin:0 0 8px}
+.subtitle{color:var(--muted);margin:0 0 28px}
+.tabs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:25px}
+.tab{background:var(--panel);color:var(--muted);border:1px solid var(--border);
+padding:11px 17px;border-radius:8px;cursor:pointer}
+.tab.active{background:var(--blue);color:white;border-color:var(--blue)}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:25px}
+.metric,.section{background:var(--panel);border:1px solid var(--border);
+border-radius:12px;padding:20px}
+.metric small{color:var(--muted);display:block;margin-bottom:12px}
+.metric strong{font-size:25px}
+.section{margin-bottom:22px}
+.section-head{display:flex;justify-content:space-between;align-items:center;
+gap:12px;margin-bottom:17px}
+h2{font-size:18px;margin:0}
+.tag{font-size:11px;color:#f5c76b;background:#3a301c;
+padding:6px 9px;border-radius:20px}
+.empty{padding:35px 15px;text-align:center;color:var(--muted);
+border:1px dashed var(--border);border-radius:9px;line-height:1.7}
+.empty strong{color:var(--text);display:block;margin-bottom:7px}
+.edge-list{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.edge{background:var(--panel2);padding:14px;border-radius:9px;
+color:var(--muted);font-size:13px}
+.edge b{display:block;color:var(--text);margin-bottom:7px}
+footer{padding:25px;text-align:center;color:var(--muted);
+font-size:12px;border-top:1px solid var(--border)}
+button:hover{filter:brightness(1.15)}
+@media(max-width:750px){
+.metrics{grid-template-columns:repeat(2,1fr)}
+.edge-list{grid-template-columns:1fr}
+header{padding:18px}
+main{padding:25px 15px}
+h1{font-size:27px}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">QUANNY<span>BUCKETS</span></div>
+  <div class="status">● DATA CONNECTION NOT CONFIGURED</div>
+</header>
+
+<main>
+  <h1>College Basketball Analytics</h1>
+  <p class="subtitle">Men's NCAA Division I · Predictions, projections and betting edges</p>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('dashboard',this)">Dashboard</button>
+    <button class="tab" onclick="showTab('games',this)">All Games</button>
+    <button class="tab" onclick="showTab('edges',this)">Top 5 Edges</button>
+    <button class="tab" onclick="showTab('performance',this)">Performance</button>
+  </div>
+
+  <div id="dashboard">
+    <div class="metrics">
+      <div class="metric"><small>Games Today</small><strong>—</strong></div>
+      <div class="metric"><small>Model Record</small><strong>—</strong></div>
+      <div class="metric"><small>ATS Record</small><strong>—</strong></div>
+      <div class="metric"><small>Units / ROI</small><strong>—</strong></div>
+    </div>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>Today's Division I Matchups</h2>
+        <span class="tag">AWAITING DATA</span>
+      </div>
+      <div class="empty">
+        <strong>No verified games or projections loaded yet.</strong>
+        Connect an authorized college basketball data source to populate this section.
+        QuannyBuckets will not invent game predictions or sportsbook lines.
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>Top 5 Best Edges</h2>
+        <span class="tag">BALANCED MODEL</span>
+      </div>
+      <div class="edge-list">
+        <div class="edge"><b>#1</b>Awaiting verified projections</div>
+        <div class="edge"><b>#2</b>Awaiting verified projections</div>
+        <div class="edge"><b>#3</b>Awaiting verified projections</div>
+        <div class="edge"><b>#4</b>Awaiting verified projections</div>
+        <div class="edge"><b>#5</b>Awaiting verified projections</div>
+      </div>
+    </section>
+  </div>
+
+  <div id="games" hidden>
+    <section class="section">
+      <h2>All Division I Games</h2>
+      <div class="empty">Game schedules and verified sportsbook lines will appear here after data setup.</div>
+    </section>
+  </div>
+
+  <div id="edges" hidden>
+    <section class="section">
+      <h2>Top 5 Model Edges</h2>
+      <div class="empty">Edges will be ranked after model projections and sportsbook lines are connected.</div>
+    </section>
+  </div>
+
+  <div id="performance" hidden>
+    <section class="section">
+      <h2>Model Performance</h2>
+      <div class="empty">ATS, over/under results, units, ROI and closing-line value will be tracked after verified predictions begin.</div>
+    </section>
+  </div>
+</main>
+
+<footer>
+  QUANNYBUCKETS · COLLEGE BASKETBALL ANALYTICS<br><br>
+  Projections are informational, not guarantees. No verified data is connected yet.
+</footer>
+
+<script>
+function showTab(name,button){
+  ['dashboard','games','edges','performance'].forEach(id=>{
+    document.getElementById(id).hidden = id !== name;
+  });
+  document.querySelectorAll('.tab').forEach(tab=>tab.classList.remove('active'));
+  button.classList.add('active');
+}
+</script>
+</body>
+</html>
