@@ -382,49 +382,7 @@ function calculatePlayerImportance(player) {
 }
 
 
-  const season2025 = getSeasonRating(historical[2025]);
-  const season2026 = getSeasonRating(historical[2026]);
-  const current2027 = getSeasonRating(player.stats);
-
-  const weightedSeasons = [];
-
-  if (season2025) {
-    weightedSeasons.push({
-      rating: season2025.rating,
-      weight: season2025.reliability * 0.2
-    });
-  }
-
-  if (season2026) {
-    weightedSeasons.push({
-      rating: season2026.rating,
-      weight: season2026.reliability * 0.5
-    });
-  }
-
-  if (current2027) {
-    weightedSeasons.push({
-      rating: current2027.rating,
-      weight: current2027.reliability * 0.3
-    });
-  }
-
-  const totalWeight = weightedSeasons.reduce(
-    (sum, season) => sum + season.weight,
-    0
-  );
-
-  if (totalWeight === 0) return 0;
-
-  const importance = weightedSeasons.reduce(
-    (sum, season) => sum + season.rating * season.weight,
-    0
-  ) / totalWeight;
-
-  return Math.round(importance * 100) / 100;
-}
-
-function rankTeamPlayers(players) {
+  function rankTeamPlayers(players) {
   const teams = {};
 
   players.forEach(player => {
