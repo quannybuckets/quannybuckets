@@ -181,14 +181,49 @@ h1{font-size:27px}
   return ratings;
 }
 function normalizeTeamName(name) {
+  const normalized = String(name ?? '')
+    .toLowerCase()
+    .replace(/\b(state|saint)\b/g, 'st')
+    .replace(/[^a-z0-9]/g, '');
+
   const aliases = {
-    "Morehead State": "Morehead St.",
-    "Cal State Fullerton": "Cal St. Fullerton"
+    ncstate: 'n.c.state',
+    miami: 'miamifl',
+    queensuniversity: 'queens',
+    ualbany: 'albany',
+    gardenerwebb: 'gardnerwebb',
+    southcarolinaupstate: 'uscupstate',
+    floridainternational: 'fiu',
+    samhouston: 'samhoustons t'.replace(/\s/g, ''),
+    iuindianapolis: 'iupui',
+    pennsylvania: 'penn',
+    miamioh: 'miamioh',
+    uic: 'uic',
+    sanjosestate: 'sanjosestate',
+    longislanduniversity: 'liu',
+    utmartin: 'tennesseemartin',
+    americanuniversity: 'american',
+    loyolamaryland: 'loyolamd',
+    olemiss: 'mississippi',
+    grambling: 'gramblingst',
+    arkansaspinebluff: 'arkansaspinebluff',
+    bethunecookman: 'bethunecookman',
+    mcneese: 'mcneesest',
+    nicholls: 'nicholls',
+    selouisiana: 'southeasternlouisiana',
+    texasamcorpuschristi: 'texasamcorpuschristi',
+    omaha: 'nebraskaomaha',
+    stthomasminnesota: 'stthomas',
+    ulmonroe: 'louisianamonroe',
+    appstate: 'appalachianstate',
+    seattleu: 'seattle',
+    uconn: 'connecticut',
+    kansascity: 'umkc',
+    hawaii: 'hawaii',
+    californiabaptist: 'californiabaptist'
   };
 
-  if (aliases[name]) return aliases[name];
-
-  return name.replace(/\bState\b/g, "St.");
+  return aliases[normalized] || normalized;
 }
 
 function projectGame(game, ratings) {
