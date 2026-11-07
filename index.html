@@ -257,7 +257,15 @@ const teamAbbreviations = Object.fromEntries(
 const teamLogos = Object.fromEntries(
   teams.map(team => [team.school, team.logos?.[0] || ''])
 );
-const linesResponse = await fetch('/api/lines?' + params);
+const torvikTeamNames = new Set(Object.keys(ratings));
+
+const unmatchedTeams = teams
+  .map(team => team.school)
+  .filter(name => !torvikTeamNames.has(normalizeTeamName(name)));
+
+console.log('Teams missing Bart Torvik matches:', unmatchedTeams);
+console.log('Matched teams:', teams.length - unmatchedTeams.length, 'of', teams.length);
+    const linesResponse = await fetch('/api/lines?' + params);
 
 if (!linesResponse.ok) {
   throw new Error('Could not load sportsbook lines');
