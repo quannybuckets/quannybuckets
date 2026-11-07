@@ -1,39 +1,43 @@
 export async function onRequest(context) {
-  const { request, env } = context;
+  const { request } = context;
 
   if (request.method !== "GET") {
     return new Response("Method not allowed", { status: 405 });
   }
 
-  if (!env.CBBD_API_KEY) {
-    return Response.json(
-      { error: "Basketball data API key is not configured." },
-      { status: 500 }
-    );
+  const incoming = new URL(request.url);
+  const season = incoming.searchParams.get("season") || "2027";
+
+  if (!/^\d{4}$/.test(season)) {
+    return new Response("Invalid season", { status: 400 });
   }
 
-  const incoming = new URL(request.url);
-  const upstream = new URL(
-    "https://api.collegebasketballdata.com/ratings/adjusted"
-  );
+  const url = `https://barttorvik.com/${season}_team_results.csv`;
 
-  const season = incoming.searchParams.get("season") || "2027";
-  upstream.searchParams.set("season", season);
+  try {
+    const result = await fetch(url);
 
-  const result = await fetch(upstream, {
-    headers: {
-      Authorization: `Bearer ${env.CBBD_API_KEY}`,
-      Accept: "application/json"
+    if (!result.ok) {
+      return new Response("Bart Torvik data unavailable", {
+        status: result.status
+      });
     }
-  });
 
-  const body = await result.text();
+    const csv = await result.text();
 
-  return new Response(body, {
-    status: result.status,
-    headers: {
-      "Content-Type": "application/json",
-      "Cache-Control": "public, max-age=300"
+    if (!csv.trim()) {
+      return new Response("No ratings data returned", { status: 502 });
     }
-  });
+
+    return new Response(csv, {
+      headers: {
+        "Content-Type": "text/csv; charset=utf-8",
+        "Cache-Control": "public, max-age=300"
+      }
+    });
+  } catch (error) {
+    return new Response("Could not connect to Bart Torvik", {
+      status: 502
+    });
+  }
 }
