@@ -270,10 +270,22 @@ console.log('Bart Torvik teams loaded:', Object.keys(ratings).length);
 
     const today = new Date().toLocaleDateString();
 
-    const upcoming = games.filter(game =>
-      game.status !== 'cancelled' &&
-      game.status !== 'postponed'
-    );
+    const upcoming = games.filter(game => {
+  if (
+    game.status === 'cancelled' ||
+    game.status === 'postponed'
+  ) return false;
+
+  const lineGame = lines.find(item =>
+    item.homeTeam === game.homeTeam &&
+    item.awayTeam === game.awayTeam
+  );
+
+  return lineGame?.lines?.some(line =>
+    (line.provider === 'Draft Kings' || line.provider === 'Bovada') &&
+    (line.spread != null || line.overUnder != null)
+  );
+});
 
     const todaysGames = upcoming.filter(game =>
       new Date(game.startDate).toLocaleDateString() === today
