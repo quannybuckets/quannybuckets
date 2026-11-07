@@ -181,13 +181,39 @@ h1{font-size:27px}
   return ratings;
 }
 async function loadPlayerStats() {
-  const response = await fetch('/api/player-stats?season=2027');
+  const [statsResponse, rostersResponse] = await Promise.all([
+    fetch('/api/player-stats?season=2027'),
+    fetch('/api/rosters?season=2027')
+  ]);
 
-  if (!response.ok) {
-    throw new Error('Could not load player statistics');
+  if (!statsResponse.ok || !rostersResponse.ok) {
+    throw new Error('Could not load player data');
   }
 
-  const players = await response.json();
+  const [stats, teams] = await Promise.all([
+    statsResponse.json(),
+    rostersResponse.json()
+  ]);
+
+  const statsByAthlete = new Map(
+    stats.map(player => [String(player.athleteId), player])
+  );
+
+  const players = teams.flatMap(team =>
+    team.players.map(player => ({
+      ...player,
+      team: team.team,
+      teamId: team.teamId,
+      conference: team.conference,
+      stats: statsByAthlete.get(String(player.id)) || null
+    }))
+  );
+
+  console.log('Combined player database:', players.length);
+  console.log(
+    'Players with statistics:',
+    players.filter(player => player.stats !== null).length
+  );
 
   return players;
 }
