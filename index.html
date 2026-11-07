@@ -180,7 +180,18 @@ h1{font-size:27px}
 
   return ratings;
 }
-function normalizeTeamName(name) {
+async function loadPlayerStats() {
+  const response = await fetch('/api/player-stats?season=2027');
+
+  if (!response.ok) {
+    throw new Error('Could not load player statistics');
+  }
+
+  const players = await response.json();
+
+  return players;
+}
+  function normalizeTeamName(name) {
   const normalized = String(name ?? '')
     .toLowerCase()
     .replace(/\b(state|saint)\b/g, 'st')
@@ -280,8 +291,11 @@ function projectGame(game, ratings) {
       throw new Error('API returned status ' + response.status);
     }
 
-    const games = await response.json();
+   const games = await response.json();
 const ratings = await loadRatings();
+const playerStats = await loadPlayerStats();
+
+console.log('Player statistics loaded:', playerStats.length);
     const teamsResponse = await fetch('/api/teams');
 
 if (!teamsResponse.ok) {
