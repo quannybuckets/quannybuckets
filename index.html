@@ -416,7 +416,13 @@ appalachianst: 'appalachianst',
 const ratings = await loadRatings();
 const playerStats = await loadPlayerStats();
 window.teamPlayerRankings = rankTeamPlayers(playerStats);
+window.teamAvailabilitySummary =
+  summarizeTeamAvailability(window.teamPlayerRankings);
+
 console.log(
+  'George Washington availability:',
+  window.teamAvailabilitySummary['George Washington']
+);console.log(
   'George Washington top players:',
   teamPlayerRankings['George Washington']?.slice(0, 5)
 );
