@@ -370,6 +370,7 @@ function calculatePlayerImportance(player) {
 
   return Math.round(importance * 100) / 100;
 }
+
 function rankTeamPlayers(players) {
   const teams = {};
 
@@ -379,11 +380,24 @@ function rankTeamPlayers(players) {
     }
 
     const stats = player.stats;
-    const hasStats = Boolean(stats);
+    const historical = player.historicalStats || {};
+
     const games = Number(stats?.games) || 0;
     const minutes = Number(stats?.minutes) || 0;
 
-    const eligible = hasStats && games >= 5 && minutes >= 100;
+    const hasCurrentSample = games >= 5 && minutes >= 100;
+
+    const has2026Sample =
+      (Number(historical[2026]?.games) || 0) >= 5 &&
+      (Number(historical[2026]?.minutes) || 0) >= 100;
+
+    const has2025Sample =
+      (Number(historical[2025]?.games) || 0) >= 5 &&
+      (Number(historical[2025]?.minutes) || 0) >= 100;
+
+    const eligible =
+      hasCurrentSample || has2026Sample || has2025Sample;
+
     const importance = eligible
       ? calculatePlayerImportance(player)
       : 0;
@@ -392,14 +406,14 @@ function rankTeamPlayers(players) {
       ...player,
       importance,
       eligible,
-      hasStats,
+      hasStats: Boolean(stats),
       games,
       minutes,
-      status: !hasStats
-        ? 'No statistics'
-        : eligible
-          ? 'Eligible'
-          : 'Limited sample'
+      status: eligible
+        ? 'Eligible'
+        : stats
+          ? 'Limited sample'
+          : 'No statistics'
     });
   });
 
@@ -415,6 +429,7 @@ function rankTeamPlayers(players) {
 
   return teams;
 }
+
   function summarizeTeamAvailability(teamPlayerRankings) {
   const summary = {};
 
