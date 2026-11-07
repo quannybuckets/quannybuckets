@@ -206,12 +206,12 @@ function projectGame(game, ratings) {
     possessions / 100 *
     (home.offense * away.defense / 100) + 2.5;
 
-  return {
-    awayScore: Number(awayPoints.toFixed(1)),
-    homeScore: Number(homePoints.toFixed(1)),
-    spread: Number((homePoints - awayPoints).toFixed(1)),
-    total: Number((homePoints + awayPoints).toFixed(1)),
-    possessions: Number(possessions.toFixed(1))
+    return {
+    awayScore: Math.round(awayPoints),
+    homeScore: Math.round(homePoints),
+    spread: Math.round(homePoints - awayPoints),
+    total: Math.round(homePoints + awayPoints),
+    possessions: Math.round(possessions)
   };
 }
   async function loadGames() {
