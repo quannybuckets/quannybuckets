@@ -376,7 +376,17 @@ function makeGameCard(game) {
       });
 
   const projection = projectGame(game, ratings);
+const isPregame =
+  Number(game.awayPoints ?? 0) === 0 &&
+  Number(game.homePoints ?? 0) === 0;
 
+const displayAwayScore = isPregame && projection
+  ? Math.round(projection.awayScore)
+  : game.awayPoints ?? '';
+
+const displayHomeScore = isPregame && projection
+  ? Math.round(projection.homeScore)
+  : game.homePoints ?? '';
   const lineGame = lines.find(item =>
     item.homeTeam === game.homeTeam &&
     item.awayTeam === game.awayTeam
@@ -433,11 +443,11 @@ function makeGameCard(game) {
       <div class="game-date">${dateText} · ${timeText}</div>
       <div class="game-teams">
         <strong>${escapeHTML(game.awayTeam)}</strong>
-        <span>${game.awayPoints ?? ''}</span>
+        <span>${displayAwayScore}</span>
       </div>
       <div class="game-teams">
         <strong>${escapeHTML(game.homeTeam)}</strong>
-        <span>${game.homePoints ?? ''}</span>
+        <span>${displayHomeScore}</span>
       </div>
       <div class="game-status">${escapeHTML(game.status || 'Scheduled')}</div>
       ${projectionHTML}
