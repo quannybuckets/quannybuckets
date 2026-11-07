@@ -247,6 +247,12 @@ const projections = todaysGames.map(game => ({
 }));
 
 console.log('QuannyBuckets projections:', projections);
+    console.table(todaysGames.map(game => ({
+  awayTeam: game.awayTeam,
+  awayFound: !!ratings[game.awayTeam],
+  homeTeam: game.homeTeam,
+  homeFound: !!ratings[game.homeTeam]
+})));
     gameCount.textContent = todaysGames.length;
 
     function makeGameCard(game) {
