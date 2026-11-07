@@ -367,8 +367,7 @@ function projectGame(game, ratings) {
    const games = await response.json();
 const ratings = await loadRatings();
 const playerStats = await loadPlayerStats();
-const teamPlayerRankings = rankTeamPlayers(playerStats);
-
+window.teamPlayerRankings = rankTeamPlayers(playerStats);
 console.log(
   'George Washington top players:',
   teamPlayerRankings['George Washington']?.slice(0, 5)
