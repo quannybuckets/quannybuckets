@@ -169,7 +169,7 @@ h1{font-size:27px}
 
     if (!team) continue;
 
-    ratings[team.trim()] = {
+    ratings[normalizeTeamName(team)] = {
       conference: values[column('conf')],
       offense: Number(values[column('adjoe')]),
       defense: Number(values[column('adjde')]),
