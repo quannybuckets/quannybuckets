@@ -1,0 +1,39 @@
+export async function onRequest(context) {
+  const { request, env } = context;
+
+  if (request.method !== "GET") {
+    return new Response("Method not allowed", { status: 405 });
+  }
+
+  if (!env.CBBD_API_KEY) {
+    return Response.json(
+      { error: "Basketball data API key is not configured." },
+      { status: 500 }
+    );
+  }
+
+  const incoming = new URL(request.url);
+  const upstream = new URL(
+    "https://api.collegebasketballdata.com/ratings/adjusted"
+  );
+
+  const season = incoming.searchParams.get("season") || "2027";
+  upstream.searchParams.set("season", season);
+
+  const result = await fetch(upstream, {
+    headers: {
+      Authorization: `Bearer ${env.CBBD_API_KEY}`,
+      Accept: "application/json"
+    }
+  });
+
+  const body = await result.text();
+
+  return new Response(body, {
+    status: result.status,
+    headers: {
+      "Content-Type": "application/json",
+      "Cache-Control": "public, max-age=300"
+    }
+  });
+}
