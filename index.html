@@ -248,7 +248,9 @@ if (!teamsResponse.ok) {
 }
 
 const teams = await teamsResponse.json();
-
+const teamAbbreviations = Object.fromEntries(
+  teams.map(team => [team.school, team.abbreviation])
+);
 const teamLogos = Object.fromEntries(
   teams.map(team => [team.school, team.logos?.[0] || ''])
 );
