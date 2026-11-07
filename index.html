@@ -571,11 +571,10 @@ if (dashboardEdges) {
 }
 console.table(todaysGames.map(game => ({
   awayTeam: game.awayTeam,
-  awayFound: !!ratings[game.awayTeam],
+  awayFound: !!ratings[normalizeTeamName(game.awayTeam)],
   homeTeam: game.homeTeam,
-  homeFound: !!ratings[game.homeTeam]
+  homeFound: !!ratings[normalizeTeamName(game.homeTeam)]
 })));
-
 console.log(
   'Morehead matches:',
   Object.keys(ratings).filter(name =>
