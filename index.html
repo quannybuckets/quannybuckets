@@ -302,36 +302,75 @@ appalachianst: 'appalachianst',
 
   return aliases[normalized] || normalized;
 }
-  function calculatePlayerImportance(player) {
-  const stats = player.stats;
+ 
+function calculatePlayerImportance(player) {
+  const historical = player.historicalStats || {};
 
-  if (!stats) return 0;
+  function getSeasonRating(stats) {
+    if (!stats) return null;
 
-  const games = Number(stats.games) || 0;
-  const minutes = Number(stats.minutes) || 0;
+    const games = Number(stats.games) || 0;
+    const minutes = Number(stats.minutes) || 0;
 
-  // Require a meaningful sample before calculating importance.
-  if (games < 5 || minutes < 100) return 0;
+    if (games < 5 || minutes < 100) return null;
 
-  const usage = Number(stats.usage) || 0;
-  const offensiveRating = Number(stats.offensiveRating) || 100;
-  const defensiveRating = Number(stats.defensiveRating) || 100;
+    const usage = Number(stats.usage) || 0;
+    const offensiveRating = Number(stats.offensiveRating) || 100;
+    const defensiveRating = Number(stats.defensiveRating) || 100;
 
-  const sampleReliability = Math.min(games / 15, 1);
-  const playingTime = Math.min(minutes / 400, 1);
+    const efficiency = (
+      (offensiveRating - 100) +
+      (100 - defensiveRating)
+    ) / 2;
 
-  const efficiency = (
-    (offensiveRating - 100) +
-    (100 - defensiveRating)
-  ) / 2;
+    return {
+      rating: usage * 0.4 + efficiency * 0.6,
+      reliability: Math.min(minutes / 1200, 1)
+    };
+  }
 
-  const importance =
-    (usage * 0.4 + efficiency * 0.6) *
-    sampleReliability *
-    playingTime;
+  const season2025 = getSeasonRating(historical[2025]);
+  const season2026 = getSeasonRating(historical[2026]);
+  const current2027 = getSeasonRating(player.stats);
+
+  const weightedSeasons = [];
+
+  if (season2025) {
+    weightedSeasons.push({
+      rating: season2025.rating,
+      weight: season2025.reliability * 0.2
+    });
+  }
+
+  if (season2026) {
+    weightedSeasons.push({
+      rating: season2026.rating,
+      weight: season2026.reliability * 0.5
+    });
+  }
+
+  if (current2027) {
+    weightedSeasons.push({
+      rating: current2027.rating,
+      weight: current2027.reliability * 0.3
+    });
+  }
+
+  const totalWeight = weightedSeasons.reduce(
+    (sum, season) => sum + season.weight,
+    0
+  );
+
+  if (totalWeight === 0) return 0;
+
+  const importance = weightedSeasons.reduce(
+    (sum, season) => sum + season.rating * season.weight,
+    0
+  ) / totalWeight;
 
   return Math.round(importance * 100) / 100;
-}function rankTeamPlayers(players) {
+}
+function rankTeamPlayers(players) {
   const teams = {};
 
   players.forEach(player => {
