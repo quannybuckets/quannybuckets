@@ -302,14 +302,23 @@ appalachianst: 'appalachianst',
       teams[player.team] = [];
     }
 
+    const importance = calculatePlayerImportance(player);
+
     teams[player.team].push({
       ...player,
-      importance: calculatePlayerImportance(player)
+      importance,
+      eligible: importance !== 0
     });
   });
 
   Object.values(teams).forEach(teamPlayers => {
-    teamPlayers.sort((a, b) => b.importance - a.importance);
+    teamPlayers.sort((a, b) => {
+      if (a.eligible !== b.eligible) {
+        return Number(b.eligible) - Number(a.eligible);
+      }
+
+      return b.importance - a.importance;
+    });
   });
 
   return teams;
