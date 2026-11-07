@@ -170,9 +170,15 @@ h1{font-size:27px}
 
   return ratings;
 }
-function projectGame(game, ratings) {
-  const away = ratings[game.awayTeam];
-  const home = ratings[game.homeTeam];
+function normalizeTeamName(name) {
+  const aliases = {
+    "Morehead State": "Morehead St."
+  };
+
+  return aliases[name] || name;
+}
+const away = ratings[normalizeTeamName(game.awayTeam)];
+const home = ratings[normalizeTeamName(game.homeTeam)];
 
   if (!away || !home) {
     return null;
