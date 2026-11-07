@@ -259,23 +259,6 @@ const projections = todaysGames.map(game => ({
   game,
   projection: projectGame(game, ratings)
 }));
-const lineGame = lines.find(item =>
-  item.homeTeam === game.homeTeam &&
-  item.awayTeam === game.awayTeam
-);
-
-const sportsbookLines = lineGame?.lines || [];
-
-const selectedLine =
-  sportsbookLines.find(line => line.provider === 'Draft Kings') ||
-  sportsbookLines.find(line => line.provider === 'Bovada');
-    const spreadEdge = projection && selectedLine
-  ? projection.spread + selectedLine.spread
-  : null;
-
-const totalEdge = projection && selectedLine
-  ? projection.total - selectedLine.overUnder
-  : null;
 console.log('QuannyBuckets projections:', projections);
 
 console.table(todaysGames.map(game => ({
