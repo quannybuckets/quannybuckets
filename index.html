@@ -367,7 +367,12 @@ function projectGame(game, ratings) {
    const games = await response.json();
 const ratings = await loadRatings();
 const playerStats = await loadPlayerStats();
+const teamPlayerRankings = rankTeamPlayers(playerStats);
 
+console.log(
+  'George Washington top players:',
+  teamPlayerRankings['George Washington']?.slice(0, 5)
+);
 console.log('Player statistics loaded:', playerStats.length);
     const teamsResponse = await fetch('/api/teams');
 
