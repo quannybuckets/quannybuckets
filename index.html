@@ -181,43 +181,80 @@ h1{font-size:27px}
   return ratings;
 }
 async function loadPlayerStats() {
-  const [statsResponse, rostersResponse] = await Promise.all([
-    fetch('/api/player-stats?season=2027'),
+  const seasons = [2025, 2026, 2027];
+
+  const [seasonData, rostersResponse] = await Promise.all([
+    Promise.all(
+      seasons.map(async season => {
+        const response = await fetch(
+          `/api/player-stats?season=${season}`
+        );
+
+        if (!response.ok) {
+          throw new Error(`Could not load ${season} player statistics`);
+        }
+
+        return [season, await response.json()];
+      })
+    ),
     fetch('/api/rosters?season=2027')
   ]);
 
-  if (!statsResponse.ok || !rostersResponse.ok) {
-    throw new Error('Could not load player data');
+  if (!rostersResponse.ok) {
+    throw new Error('Could not load player rosters');
   }
 
-  const [stats, teams] = await Promise.all([
-    statsResponse.json(),
-    rostersResponse.json()
-  ]);
+  const teams = await rostersResponse.json();
 
-  const statsByAthlete = new Map(
-    stats.map(player => [String(player.athleteId), player])
+  const statsBySeason = Object.fromEntries(
+    seasonData.map(([season, players]) => [
+      season,
+      new Map(
+        players.map(player => [
+          String(player.athleteId),
+          player
+        ])
+      )
+    ])
   );
 
   const players = teams.flatMap(team =>
-    team.players.map(player => ({
-      ...player,
-      team: team.team,
-      teamId: team.teamId,
-      conference: team.conference,
-      stats: statsByAthlete.get(String(player.id)) || null
-    }))
+    team.players.map(player => {
+      const id = String(player.id);
+
+      const historicalStats = {
+        2025: statsBySeason[2025].get(id) || null,
+        2026: statsBySeason[2026].get(id) || null,
+        2027: statsBySeason[2027].get(id) || null
+      };
+
+      return {
+        ...player,
+        team: team.team,
+        teamId: team.teamId,
+        conference: team.conference,
+        stats: historicalStats[2027],
+        historicalStats
+      };
+    })
   );
 
   console.log('Combined player database:', players.length);
   console.log(
-    'Players with statistics:',
+    'Players with current statistics:',
     players.filter(player => player.stats !== null).length
+  );
+  console.log(
+    'Players with 2025-26 statistics:',
+    players.filter(player => player.historicalStats[2026] !== null).length
+  );
+  console.log(
+    'Players with 2024-25 statistics:',
+    players.filter(player => player.historicalStats[2025] !== null).length
   );
 
   return players;
-}
-  function normalizeTeamName(name) {
+}  function normalizeTeamName(name) {
   const normalized = String(name ?? '')
     .toLowerCase()
     .replace(/\b(state|saint)\b/g, 'st')
