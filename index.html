@@ -385,23 +385,34 @@ const isPregame =
   Number(game.awayPoints ?? 0) === 0 &&
   Number(game.homePoints ?? 0) === 0;
 
-const displayAwayScore = isPregame && projection
-  ? Math.round(projection.awayScore)
-  : game.awayPoints ?? '';
-
-const displayHomeScore = isPregame && projection
-  ? Math.round(projection.homeScore)
-  : game.homePoints ?? '';
   const lineGame = lines.find(item =>
     item.homeTeam === game.homeTeam &&
     item.awayTeam === game.awayTeam
   );
 
   const sportsbookLines = lineGame?.lines || [];
-
   const selectedLine =
     sportsbookLines.find(line => line.provider === 'Draft Kings') ||
     sportsbookLines.find(line => line.provider === 'Bovada');
+
+  const awayIsFavorite = selectedLine && selectedLine.spread > 0;
+const homeIsFavorite = selectedLine && selectedLine.spread < 0;
+
+const favoriteTeam = selectedLine
+  ? (homeIsFavorite ? game.homeTeam : game.awayTeam)
+  : null;
+
+const favoriteInitials = favoriteTeam
+  ? favoriteTeam.split(' ').map(word => word[0]).join('').toUpperCase()
+  : '';
+
+const displayAwayScore = selectedLine
+  ? `${favoriteInitials} ${Math.abs(selectedLine.spread)}`
+  : 'Odds unavailable';
+
+const displayHomeScore = selectedLine?.overUnder != null
+  ? `O/U ${selectedLine.overUnder}`
+  : 'O/U unavailable';
 
   const spreadEdge = projection && selectedLine
     ? projection.spread + selectedLine.spread
