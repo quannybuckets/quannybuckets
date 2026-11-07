@@ -339,6 +339,28 @@ appalachianst: 'appalachianst',
 
   return teams;
 }
+  function summarizeTeamAvailability(teamPlayerRankings) {
+  const summary = {};
+
+  Object.entries(teamPlayerRankings).forEach(([team, players]) => {
+    const total = players.length;
+    const eligible = players.filter(p => p.status === 'Eligible').length;
+    const limited = players.filter(p => p.status === 'Limited sample').length;
+    const noStats = players.filter(p => p.status === 'No statistics').length;
+
+    summary[team] = {
+      totalPlayers: total,
+      eligible,
+      limited,
+      noStats,
+      statsCoverage: total
+        ? Math.round(((total - noStats) / total) * 100)
+        : 0
+    };
+  });
+
+  return summary;
+}
   function projectGame(game, ratings) {
   const away = ratings[normalizeTeamName(game.awayTeam)];
   const home = ratings[normalizeTeamName(game.homeTeam)];
