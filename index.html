@@ -468,12 +468,81 @@ function makeGameCard(game) {
         font-size: 12px;
         margin-bottom: 9px;
       }
-      .game-teams {
-        display: flex;
-        justify-content: space-between;
-        padding: 5px 0;
-        font-size: 15px;
-      }
+      .game-card {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  grid-template-areas:
+    "date date"
+    "away projection"
+    "home projection"
+    "status projection";
+  gap: 10px 24px;
+  align-items: center;
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px;
+  margin-bottom: 12px;
+}
+
+.game-date {
+  grid-area: date;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 10px;
+}
+
+.game-teams:nth-of-type(2) {
+  grid-area: away;
+}
+
+.game-teams:nth-of-type(3) {
+  grid-area: home;
+}
+
+.game-status {
+  grid-area: status;
+}
+
+.game-teams {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  font-size: 16px;
+}
+
+.projection {
+  grid-area: projection;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  line-height: 1.9;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.projection strong {
+  display: block;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+@media (max-width: 700px) {
+  .game-card {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "date"
+      "away"
+      "home"
+      "status"
+      "projection";
+    gap: 8px;
+    padding: 14px;
+  }
+
+  .projection {
+    margin-top: 8px;
+  }
+}
     `;
     document.head.appendChild(style);
 
