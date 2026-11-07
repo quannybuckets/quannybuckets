@@ -268,10 +268,33 @@ appalachianst: 'appalachianst',
   function calculatePlayerImportance(player) {
   const stats = player.stats;
 
-  if (!stats || !stats.games || !stats.minutes) {
-    return 0;
-  }
+  if (!stats) return 0;
 
+  const games = Number(stats.games) || 0;
+  const minutes = Number(stats.minutes) || 0;
+
+  // Require a meaningful sample before calculating importance.
+  if (games < 5 || minutes < 100) return 0;
+
+  const usage = Number(stats.usage) || 0;
+  const offensiveRating = Number(stats.offensiveRating) || 100;
+  const defensiveRating = Number(stats.defensiveRating) || 100;
+
+  const sampleReliability = Math.min(games / 15, 1);
+  const playingTime = Math.min(minutes / 400, 1);
+
+  const efficiency = (
+    (offensiveRating - 100) +
+    (100 - defensiveRating)
+  ) / 2;
+
+  const importance =
+    (usage * 0.4 + efficiency * 0.6) *
+    sampleReliability *
+    playingTime;
+
+  return Math.round(importance * 100) / 100;
+}
   const games = Number(stats.games);
   const minutes = Number(stats.minutes);
   const usage = Number(stats.usage) || 0;
