@@ -241,6 +241,17 @@ function projectGame(game, ratings) {
 
     const games = await response.json();
 const ratings = await loadRatings();
+    const teamsResponse = await fetch('/api/teams');
+
+if (!teamsResponse.ok) {
+  throw new Error('Could not load team abbreviations');
+}
+
+const teams = await teamsResponse.json();
+
+const teamAbbreviations = Object.fromEntries(
+  teams.map(team => [team.school, team.abbreviation])
+);
 const linesResponse = await fetch('/api/lines?' + params);
 
 if (!linesResponse.ok) {
@@ -403,7 +414,8 @@ const favoriteTeam = selectedLine
   : null;
 
 const favoriteInitials = favoriteTeam
-  ? favoriteTeam.split(' ').map(word => word[0]).join('').toUpperCase()
+  ? teamAbbreviations[favoriteTeam] ||
+    favoriteTeam.slice(0, 3).toUpperCase()
   : '';
 
 const displayAwayScore = selectedLine
