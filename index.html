@@ -476,7 +476,8 @@ function makeGameCard(game) {
       }
     `;
     document.head.appendChild(style);
-
+dashboardEmpty.classList.remove('empty');
+gamesEmpty.classList.remove('empty');
     dashboardEmpty.innerHTML = todaysGames.length
       ? todaysGames.map(makeGameCard).join('')
       : '<strong>No games scheduled today.</strong> Check All Games for upcoming matchups.';
