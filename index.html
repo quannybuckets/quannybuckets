@@ -40,6 +40,12 @@ padding:6px 9px;border-radius:20px}
 .empty{padding:35px 15px;text-align:center;color:var(--muted);
 border:1px dashed var(--border);border-radius:9px;line-height:1.7}
 .empty strong{color:var(--text);display:block;margin-bottom:7px}
+  .empty:has(.game-card) {
+  padding: 0;
+  text-align: left;
+  border: none;
+  line-height: normal;
+}
 .edge-list{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
 .edge{background:var(--panel2);padding:14px;border-radius:9px;
 color:var(--muted);font-size:13px}
