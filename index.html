@@ -303,10 +303,11 @@ appalachianst: 'appalachianst',
   return aliases[normalized] || normalized;
 }
  
+
 function calculatePlayerImportance(player) {
   const historical = player.historicalStats || {};
 
-  function getSeasonRating(stats) {
+  function getSeasonRating(stats, season) {
     if (!stats) return null;
 
     const games = Number(stats.games) || 0;
@@ -315,19 +316,71 @@ function calculatePlayerImportance(player) {
     if (games < 5 || minutes < 100) return null;
 
     const usage = Number(stats.usage) || 0;
-    const offensiveRating = Number(stats.offensiveRating) || 100;
-    const defensiveRating = Number(stats.defensiveRating) || 100;
+    const offense = Number(stats.offensiveRating) || 100;
+    const defense = Number(stats.defensiveRating) || 100;
 
-    const efficiency = (
-      (offensiveRating - 100) +
-      (100 - defensiveRating)
+    const rawEfficiency = (
+      (offense - 100) +
+      (100 - defense)
     ) / 2;
 
+    // Regress efficiency toward average when the sample is small.
+    const reliability = minutes / (minutes + 600);
+
+    const adjustedEfficiency =
+      rawEfficiency * reliability;
+
+    const rating = usage * 0.4 + adjustedEfficiency * 0.6;
+
     return {
-      rating: usage * 0.4 + efficiency * 0.6,
-      reliability: Math.min(minutes / 1200, 1)
+      rating,
+      minutes,
+      season
     };
   }
+
+  const season2025 = getSeasonRating(historical[2025], 2025);
+  const season2026 = getSeasonRating(historical[2026], 2026);
+  const current2027 = getSeasonRating(player.stats, 2027);
+
+  const seasons = [];
+
+  if (season2025) {
+    seasons.push({
+      ...season2025,
+      weight: 0.2
+    });
+  }
+
+  if (season2026) {
+    seasons.push({
+      ...season2026,
+      weight: 0.5
+    });
+  }
+
+  if (current2027) {
+    seasons.push({
+      ...current2027,
+      weight: 0.3
+    });
+  }
+
+  const totalWeight = seasons.reduce(
+    (sum, season) => sum + season.weight,
+    0
+  );
+
+  if (totalWeight === 0) return 0;
+
+  const importance = seasons.reduce(
+    (sum, season) => sum + season.rating * season.weight,
+    0
+  ) / totalWeight;
+
+  return Math.round(importance * 100) / 100;
+}
+
 
   const season2025 = getSeasonRating(historical[2025]);
   const season2026 = getSeasonRating(historical[2026]);
