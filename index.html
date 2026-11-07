@@ -136,13 +136,152 @@ h1{font-size:27px}
 </footer>
 
 <script>
-function showTab(name,button){
-  ['dashboard','games','edges','performance'].forEach(id=>{
+<script>
+async function loadGames() {
+  const status = document.querySelector('.status');
+  const dashboardEmpty = document.querySelector('#dashboard .empty');
+  const gamesEmpty = document.querySelector('#games .empty');
+  const gameCount = document.querySelector('.metric strong');
+
+  status.textContent = '● CONNECTING TO LIVE DATA';
+
+  try {
+    const start = new Date();
+    const end = new Date();
+    end.setDate(end.getDate() + 14);
+
+    const params = new URLSearchParams({
+      season: '2027',
+      startDateRange: start.toISOString(),
+      endDateRange: end.toISOString()
+    });
+
+    const response = await fetch('/api/games?' + params);
+
+    if (!response.ok) {
+      throw new Error('API returned status ' + response.status);
+    }
+
+    const games = await response.json();
+
+    if (!Array.isArray(games)) {
+      throw new Error('Unexpected API response');
+    }
+
+    status.textContent = '● LIVE DATA CONNECTED';
+
+    const today = new Date().toLocaleDateString();
+
+    const upcoming = games.filter(game =>
+      game.status !== 'cancelled' &&
+      game.status !== 'postponed'
+    );
+
+    const todaysGames = upcoming.filter(game =>
+      new Date(game.startDate).toLocaleDateString() === today
+    );
+
+    gameCount.textContent = todaysGames.length;
+
+    function makeGameCard(game) {
+      const date = new Date(game.startDate);
+      const dateText = date.toLocaleDateString([], {
+        month: 'short',
+        day: 'numeric'
+      });
+
+      const timeText = game.startTimeTbd
+        ? 'Time TBD'
+        : date.toLocaleTimeString([], {
+            hour: 'numeric',
+            minute: '2-digit'
+          });
+
+      const score = game.homePoints !== null &&
+                    game.awayPoints !== null
+        ? `${game.awayPoints} - ${game.homePoints}`
+        : timeText;
+
+      return `
+        <div class="game-card">
+          <div class="game-date">${dateText} · ${timeText}</div>
+          <div class="game-teams">
+            <strong>${escapeHTML(game.awayTeam)}</strong>
+            <span>${game.awayPoints ?? ''}</span>
+          </div>
+          <div class="game-teams">
+            <strong>${escapeHTML(game.homeTeam)}</strong>
+            <span>${game.homePoints ?? ''}</span>
+          </div>
+          <div class="game-status">${escapeHTML(game.status || 'Scheduled')}</div>
+        </div>
+      `;
+    }
+
+    function escapeHTML(value) {
+      return String(value ?? '').replace(/[&<>"']/g, char => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      })[char]);
+    }
+
+    const style = document.createElement('style');
+    style.textContent = `
+      .game-card {
+        background: var(--panel2);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 16px;
+        margin-bottom: 12px;
+      }
+      .game-date, .game-status {
+        color: var(--muted);
+        font-size: 12px;
+        margin-bottom: 9px;
+      }
+      .game-teams {
+        display: flex;
+        justify-content: space-between;
+        padding: 5px 0;
+        font-size: 15px;
+      }
+    `;
+    document.head.appendChild(style);
+
+    dashboardEmpty.innerHTML = todaysGames.length
+      ? todaysGames.map(makeGameCard).join('')
+      : '<strong>No games scheduled today.</strong> Check All Games for upcoming matchups.';
+
+    gamesEmpty.innerHTML = upcoming.length
+      ? upcoming.map(makeGameCard).join('')
+      : 'No upcoming games returned for this date range.';
+
+  } catch (error) {
+    status.textContent = '● DATA CONNECTION ERROR';
+    dashboardEmpty.textContent =
+      'Could not load games: ' + error.message;
+    gamesEmpty.textContent =
+      'Could not load games: ' + error.message;
+  }
+}
+
+function showTab(name, button) {
+  ['dashboard', 'games', 'edges', 'performance'].forEach(id => {
     document.getElementById(id).hidden = id !== name;
   });
-  document.querySelectorAll('.tab').forEach(tab=>tab.classList.remove('active'));
+
+  document.querySelectorAll('.tab').forEach(tab =>
+    tab.classList.remove('active')
+  );
+
   button.classList.add('active');
 }
+
+loadGames();
+</script>
 </script>
 </body>
 </html>
