@@ -302,12 +302,28 @@ appalachianst: 'appalachianst',
       teams[player.team] = [];
     }
 
-    const importance = calculatePlayerImportance(player);
+    const stats = player.stats;
+    const hasStats = Boolean(stats);
+    const games = Number(stats?.games) || 0;
+    const minutes = Number(stats?.minutes) || 0;
+
+    const eligible = hasStats && games >= 5 && minutes >= 100;
+    const importance = eligible
+      ? calculatePlayerImportance(player)
+      : 0;
 
     teams[player.team].push({
       ...player,
       importance,
-      eligible: importance !== 0
+      eligible,
+      hasStats,
+      games,
+      minutes,
+      status: !hasStats
+        ? 'No statistics'
+        : eligible
+          ? 'Eligible'
+          : 'Limited sample'
     });
   });
 
@@ -323,7 +339,7 @@ appalachianst: 'appalachianst',
 
   return teams;
 }
-function projectGame(game, ratings) {
+  function projectGame(game, ratings) {
   const away = ratings[normalizeTeamName(game.awayTeam)];
   const home = ratings[normalizeTeamName(game.homeTeam)];
 
