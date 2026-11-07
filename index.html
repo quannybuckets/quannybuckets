@@ -136,6 +136,40 @@ h1{font-size:27px}
 </footer>
 
 <script>
+  async function loadRatings() {
+  const response = await fetch('/api/ratings?season=2027');
+
+  if (!response.ok) {
+    throw new Error('Could not load Bart Torvik ratings');
+  }
+
+  const csv = await response.text();
+
+  const lines = csv.trim().split(/\r?\n/);
+  const headers = lines[0].split(',').map(x => x.trim());
+
+  const column = name => headers.indexOf(name);
+
+  const ratings = {};
+
+  for (const line of lines.slice(1)) {
+    const values = line.split(',');
+
+    const team = values[column('team')];
+
+    if (!team) continue;
+
+    ratings[team.trim()] = {
+      conference: values[column('conf')],
+      offense: Number(values[column('adjoe')]),
+      defense: Number(values[column('adjde')]),
+      tempo: Number(values[column('adjt')]),
+      strength: Number(values[column('barthag')])
+    };
+  }
+
+  return ratings;
+}
 async function loadGames() {
   const status = document.querySelector('.status');
   const dashboardEmpty = document.querySelector('#dashboard .empty');
@@ -162,7 +196,9 @@ async function loadGames() {
     }
 
     const games = await response.json();
+const ratings = await loadRatings();
 
+console.log('Bart Torvik teams loaded:', Object.keys(ratings).length);
     if (!Array.isArray(games)) {
       throw new Error('Unexpected API response');
     }
