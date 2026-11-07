@@ -177,8 +177,10 @@ function normalizeTeamName(name) {
 
   return aliases[name] || name;
 }
-const away = ratings[normalizeTeamName(game.awayTeam)];
-const home = ratings[normalizeTeamName(game.homeTeam)];
+
+function projectGame(game, ratings) {
+  const away = ratings[normalizeTeamName(game.awayTeam)];
+  const home = ratings[normalizeTeamName(game.homeTeam)];
 
   if (!away || !home) {
     return null;
@@ -367,7 +369,6 @@ function showTab(name, button) {
 }
 
 loadGames();
-</script>
 </script>
 </body>
 </html>
