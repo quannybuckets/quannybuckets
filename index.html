@@ -146,11 +146,12 @@ h1{font-size:27px}
 </footer>
 
 <script>
-  async function loadRatings() {
-  const response = await fetch('/api/ratings?season=2027');
+  
+async function loadRatings(season = 2027) {
+  const response = await fetch(`/api/ratings?season=${season}`);
 
   if (!response.ok) {
-    throw new Error('Could not load Bart Torvik ratings');
+    throw new Error(`Could not load Bart Torvik ratings for ${season}`);
   }
 
   const csv = await response.text();
@@ -178,8 +179,11 @@ h1{font-size:27px}
     };
   }
 
+  console.log(`Bart Torvik ${season} teams loaded:`, Object.keys(ratings).length);
+
   return ratings;
 }
+
 async function loadPlayerStats() {
   const seasons = [2025, 2026, 2027];
 
