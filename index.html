@@ -249,8 +249,8 @@ if (!teamsResponse.ok) {
 
 const teams = await teamsResponse.json();
 
-const teamAbbreviations = Object.fromEntries(
-  teams.map(team => [team.school, team.abbreviation])
+const teamLogos = Object.fromEntries(
+  teams.map(team => [team.school, team.logos?.[0] || ''])
 );
 const linesResponse = await fetch('/api/lines?' + params);
 
@@ -470,11 +470,17 @@ const displayHomeScore = selectedLine?.overUnder != null
     <div class="game-card">
       <div class="game-date">${dateText} · ${timeText}</div>
       <div class="game-teams">
-        <strong>${escapeHTML(game.awayTeam)}</strong>
+        <div class="team-name">
+  ${teamLogos[game.awayTeam] ? `<img class="team-logo" src="${escapeHTML(teamLogos[game.awayTeam])}" alt="">` : ''}
+  <strong>${escapeHTML(game.awayTeam)}</strong>
+</div>
         <span>${displayAwayScore}</span>
       </div>
       <div class="game-teams">
-        <strong>${escapeHTML(game.homeTeam)}</strong>
+        <div class="team-name">
+  ${teamLogos[game.homeTeam] ? `<img class="team-logo" src="${escapeHTML(teamLogos[game.homeTeam])}" alt="">` : ''}
+  <strong>${escapeHTML(game.homeTeam)}</strong>
+</div>
         <span>${displayHomeScore}</span>
       </div>
       <div class="game-status">${escapeHTML(game.status || 'Scheduled')}</div>
@@ -547,7 +553,18 @@ const displayHomeScore = selectedLine?.overUnder != null
   padding: 8px 0;
   font-size: 16px;
 }
+.team-name {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 
+.team-logo {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
 .projection {
   grid-area: projection;
   background: var(--panel);
