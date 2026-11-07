@@ -170,7 +170,33 @@ h1{font-size:27px}
 
   return ratings;
 }
-async function loadGames() {
+function projectGame(game, ratings) {
+  const away = ratings[game.awayTeam];
+  const home = ratings[game.homeTeam];
+
+  if (!away || !home) {
+    return null;
+  }
+
+  const possessions = (away.tempo + home.tempo) / 2;
+
+  const awayPoints =
+    possessions / 100 *
+    (away.offense * home.defense / 100);
+
+  const homePoints =
+    possessions / 100 *
+    (home.offense * away.defense / 100) + 2.5;
+
+  return {
+    awayScore: Number(awayPoints.toFixed(1)),
+    homeScore: Number(homePoints.toFixed(1)),
+    spread: Number((homePoints - awayPoints).toFixed(1)),
+    total: Number((homePoints + awayPoints).toFixed(1)),
+    possessions: Number(possessions.toFixed(1))
+  };
+}
+  async function loadGames() {
   const status = document.querySelector('.status');
   const dashboardEmpty = document.querySelector('#dashboard .empty');
   const gamesEmpty = document.querySelector('#games .empty');
@@ -215,7 +241,12 @@ console.log('Bart Torvik teams loaded:', Object.keys(ratings).length);
     const todaysGames = upcoming.filter(game =>
       new Date(game.startDate).toLocaleDateString() === today
     );
+const projections = todaysGames.map(game => ({
+  game,
+  projection: projectGame(game, ratings)
+}));
 
+console.log('QuannyBuckets projections:', projections);
     gameCount.textContent = todaysGames.length;
 
     function makeGameCard(game) {
