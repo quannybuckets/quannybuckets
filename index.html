@@ -115,12 +115,17 @@ h1{font-size:27px}
     </section>
   </div>
 
-  <div id="edges" hidden>
-    <section class="section">
+ <div id="edges" hidden>
+  <section class="section">
+    <div class="section-head">
       <h2>Top 5 Model Edges</h2>
-      <div class="empty">Edges will be ranked after model projections and sportsbook lines are connected.</div>
-    </section>
-  </div>
+      <span class="tag">PRELIMINARY</span>
+    </div>
+    <div id="topEdges" class="edge-list">
+      <div class="empty">Calculating model edges...</div>
+    </div>
+  </section>
+</div>
 
   <div id="performance" hidden>
     <section class="section">
@@ -255,7 +260,12 @@ console.log('Bart Torvik teams loaded:', Object.keys(ratings).length);
     const todaysGames = upcoming.filter(game =>
       new Date(game.startDate).toLocaleDateString() === today
     );
-const projections = todaysGames.map(game => ({
+const futureGames = upcoming.filter(game => {
+  const date = new Date(game.startDate);
+  return !isNaN(date.getTime()) && date > new Date();
+});
+
+const projections = futureGames.map(game => ({
   game,
   projection: projectGame(game, ratings)
 }));
