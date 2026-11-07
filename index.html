@@ -272,40 +272,53 @@ console.log(
     gameCount.textContent = todaysGames.length;
 
     function makeGameCard(game) {
-      const date = new Date(game.startDate);
-      const dateText = date.toLocaleDateString([], {
-        month: 'short',
-        day: 'numeric'
+  const date = new Date(game.startDate);
+
+  const dateText = date.toLocaleDateString([], {
+    month: 'short',
+    day: 'numeric'
+  });
+
+  const timeText = game.startTimeTbd
+    ? 'Time TBD'
+    : date.toLocaleTimeString([], {
+        hour: 'numeric',
+        minute: '2-digit'
       });
 
-      const timeText = game.startTimeTbd
-        ? 'Time TBD'
-        : date.toLocaleTimeString([], {
-            hour: 'numeric',
-            minute: '2-digit'
-          });
+  const projection = projectGame(game, ratings);
 
-      const score = game.homePoints !== null &&
-                    game.awayPoints !== null
-        ? `${game.awayPoints} - ${game.homePoints}`
-        : timeText;
+  const projectionHTML = projection
+    ? `
+      <div class="projection">
+        <strong>QUANNYBUCKETS PROJECTION</strong>
+        <div>Projected Score: ${projection.awayScore} - ${projection.homeScore}</div>
+        <div>Projected Spread: ${
+          projection.spread > 0
+            ? game.homeTeam + ' -' + projection.spread
+            : game.awayTeam + ' +' + Math.abs(projection.spread)
+        }</div>
+        <div>Projected Total: ${projection.total}</div>
+      </div>
+    `
+    : '<div class="projection">Projection unavailable</div>';
 
-      return `
-        <div class="game-card">
-          <div class="game-date">${dateText} · ${timeText}</div>
-          <div class="game-teams">
-            <strong>${escapeHTML(game.awayTeam)}</strong>
-            <span>${game.awayPoints ?? ''}</span>
-          </div>
-          <div class="game-teams">
-            <strong>${escapeHTML(game.homeTeam)}</strong>
-            <span>${game.homePoints ?? ''}</span>
-          </div>
-          <div class="game-status">${escapeHTML(game.status || 'Scheduled')}</div>
-        </div>
-      `;
-    }
-
+  return `
+    <div class="game-card">
+      <div class="game-date">${dateText} · ${timeText}</div>
+      <div class="game-teams">
+        <strong>${escapeHTML(game.awayTeam)}</strong>
+        <span>${game.awayPoints ?? ''}</span>
+      </div>
+      <div class="game-teams">
+        <strong>${escapeHTML(game.homeTeam)}</strong>
+        <span>${game.homePoints ?? ''}</span>
+      </div>
+      <div class="game-status">${escapeHTML(game.status || 'Scheduled')}</div>
+      ${projectionHTML}
+    </div>
+  `;
+}
     function escapeHTML(value) {
       return String(value ?? '').replace(/[&<>"']/g, char => ({
         '&': '&amp;',
