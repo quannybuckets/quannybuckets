@@ -293,7 +293,26 @@ appalachianst: 'appalachianst',
 
   return Math.round(importance * 100) / 100;
 }
+function rankTeamPlayers(players) {
+  const teams = {};
 
+  players.forEach(player => {
+    if (!teams[player.team]) {
+      teams[player.team] = [];
+    }
+
+    teams[player.team].push({
+      ...player,
+      importance: calculatePlayerImportance(player)
+    });
+  });
+
+  Object.values(teams).forEach(teamPlayers => {
+    teamPlayers.sort((a, b) => b.importance - a.importance);
+  });
+
+  return teams;
+}
 function projectGame(game, ratings) {
   const away = ratings[normalizeTeamName(game.awayTeam)];
   const home = ratings[normalizeTeamName(game.homeTeam)];
