@@ -691,14 +691,18 @@ const edgeHTML = topFive.length
         <div class="recommended-game">
           #${index + 1} ${escapeHTML(item.game.awayTeam)} at ${escapeHTML(item.game.homeTeam)}
         </div>
+
         <div class="recommended-pick">
           ${escapeHTML(item.pick)}
+        </div>
+
+        <div class="recommended-projection">
+          <span>${escapeHTML(item.projectionLabel)}</span>
+          <strong>${escapeHTML(String(item.projectionValue))}</strong>
         </div>
       </div>
     `).join('')
   : '<div class="empty">No eligible edges with available sportsbook lines.</div>';
-
-document.getElementById('topEdges').innerHTML = edgeHTML;
 
 document.getElementById('topEdges').innerHTML = edgeHTML;
 const dashboardEdges = document.querySelector('#dashboard .edge-list');
