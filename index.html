@@ -614,23 +614,10 @@ const ratings = await loadRatings();
 let playerStats = [];
 
 try {
-  playerStats = await loadPlayerStats();
-
-  window.teamPlayerRankings = rankTeamPlayers(playerStats);
-
-  window.teamAvailabilitySummary =
-    summarizeTeamAvailability(window.teamPlayerRankings);
-
-  console.log('Player statistics loaded:', playerStats.length);
-
-} catch (playerError) {
-  console.warn(
-    'Player data temporarily unavailable. Continuing with game predictions.',
-    playerError
-  );
-
-  window.teamPlayerRankings = {};
-  window.teamAvailabilitySummary = {};
+  // Player data is not currently used in game projections.
+// Avoid unnecessary CollegeBasketballData requests.
+window.teamPlayerRankings = {};
+window.teamAvailabilitySummary = {};
 }
     const teamsResponse = await fetch('/api/teams');
 
