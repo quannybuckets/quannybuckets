@@ -1278,7 +1278,77 @@ console.log('Game History loaded:', historyGames.length);
     margin-top: 8px;
   }
 }
-    `;
+    .history-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.history-game {
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.history-date {
+  color: var(--muted);
+  font-size: 11px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.history-team {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 5px 0;
+}
+
+.history-team .team-name {
+  min-width: 0;
+}
+
+.history-team .team-name strong {
+  color: var(--text);
+  font-size: 14px;
+}
+
+.history-score {
+  color: var(--text);
+  font-size: 19px;
+  font-weight: 900;
+}
+
+.history-status {
+  width: fit-content;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.7px;
+}
+
+.history-status.final {
+  background: #26354c;
+  color: #c3d0e2;
+}
+
+.history-status.live {
+  background: #176047;
+  color: #ffffff;
+}
+
+@media (max-width: 600px) {
+  .history-list {
+    grid-template-columns: 1fr;
+  }
+}
+        `;
     document.head.appendChild(style);
 
     dashboardEmpty.innerHTML = todaysGames.length
