@@ -1326,7 +1326,57 @@ console.log('Game History loaded:', historyGames.length);
   background: #176047;
   color: #ffffff;
 }
+.history-projection {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+  margin-top: 8px;
+  text-align: center;
+}
 
+.history-projection > strong {
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: 0.7px;
+}
+
+.history-projected-score {
+  color: var(--text);
+  font-size: 28px;
+  font-weight: 900;
+  margin: 10px 0;
+}
+
+.history-model-pick {
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.history-grade {
+  display: inline-block;
+  padding: 8px 20px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.history-grade.correct {
+  background: #176B45;
+  color: #ffffff;
+}
+
+.history-grade.incorrect {
+  background: #8B2929;
+  color: #ffffff;
+}
+
+.history-grade.pending {
+  background: #303D54;
+  color: #ffffff;
+}
 @media (max-width: 600px) {
   .history-list {
     grid-template-columns: 1fr;
