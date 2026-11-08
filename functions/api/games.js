@@ -148,8 +148,11 @@ if (upstreamResponse?.status === 429) {
     "CollegeBasketballData rate limit response:",
     errorBody.slice(0, 500)
   );
-}    
-return json({
+} const upstreamError =
+  upstreamResponse?.status === 429
+    ? (await upstreamResponse.clone().text()).slice(0, 300)
+    : null;   
+return json({upstreamError,
   error: "Games API unavailable",
   upstreamStatus: upstreamResponse?.status || null,
   rateLimit: {
