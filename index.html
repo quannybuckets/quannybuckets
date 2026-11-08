@@ -643,6 +643,7 @@ futureGames.forEach(game => {
 
   if (!selectedLine) return;
 
+  // Spread edge
   if (Number.isFinite(selectedLine.spread)) {
     const edge = projection.spread + selectedLine.spread;
 
@@ -652,35 +653,40 @@ futureGames.forEach(game => {
         : `${game.awayTeam} ${selectedLine.spread < 0 ? '+' : ''}${Math.abs(selectedLine.spread)}`;
 
       edgeCandidates.push({
-  game,
-  market: 'Spread',
-  pick,
-  edge: Math.abs(edge),
-  provider: selectedLine.provider,
-  projectionLabel: 'PROJECTED SPREAD',
-  projectionValue: projection.spread > 0
-    ? `${game.homeTeam} -${Math.abs(projection.spread)}`
-    : projection.spread < 0
-      ? `${game.awayTeam} -${Math.abs(projection.spread)}`
-      : 'Pick’em'
-});
+        game,
+        market: 'Spread',
+        pick,
+        edge: Math.abs(edge),
+        provider: selectedLine.provider,
+        projectionLabel: 'PROJECTED SPREAD',
+        projectionValue: projection.spread > 0
+          ? `${game.homeTeam} -${Math.abs(projection.spread)}`
+          : projection.spread < 0
+            ? `${game.awayTeam} -${Math.abs(projection.spread)}`
+            : 'Pick’em'
+      });
+    }
+  }
 
+  // Over/under edge
   if (Number.isFinite(selectedLine.overUnder)) {
     const edge = projection.total - selectedLine.overUnder;
 
     if (Math.abs(edge) >= 0.1) {
       edgeCandidates.push({
-  game,
-  market: 'Total',
-  pick: edge > 0
-    ? `Over ${selectedLine.overUnder}`
-    : `Under ${selectedLine.overUnder}`,
-  edge: Math.abs(edge),
-  provider: selectedLine.provider,
-  projectionLabel: 'PROJECTED O/U',
-  projectionValue: projection.total
+        game,
+        market: 'Total',
+        pick: edge > 0
+          ? `Over ${selectedLine.overUnder}`
+          : `Under ${selectedLine.overUnder}`,
+        edge: Math.abs(edge),
+        provider: selectedLine.provider,
+        projectionLabel: 'PROJECTED O/U',
+        projectionValue: projection.total
+      });
+    }
+  }
 });
-
 const topFive = edgeCandidates
   .sort((a, b) => b.edge - a.edge)
   .slice(0, 5);
