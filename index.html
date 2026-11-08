@@ -685,7 +685,79 @@ const futureGames = upcoming.filter(game => {
   const date = new Date(game.startDate);
   return !isNaN(date.getTime()) && date > new Date();
 });
+// Save immutable pregame predictions to Cloudflare D1
+const predictionCaptureGames = games.filter(game => {
+  const date = new Date(game.startDate);
 
+  return (
+    !isNaN(date.getTime()) &&
+    date > new Date() &&
+    !['cancelled', 'postponed'].includes(
+      String(game.status || '').toLowerCase()
+    ) &&
+    ratings[normalizeTeamName(game.awayTeam)] &&
+    ratings[normalizeTeamName(game.homeTeam)]
+  );
+});
+
+const predictionsToSave = predictionCaptureGames.flatMap(game => {
+  const projection = projectGame(game, ratings);
+  if (!projection) return [];
+
+  const startTime = new Date(game.startDate).toISOString();
+
+  const modelPick =
+    projection.awayScore > projection.homeScore
+      ? game.awayTeam
+      : projection.homeScore > projection.awayScore
+        ? game.homeTeam
+        : 'Pick’em';
+
+  return [{
+    game_key: [
+      '2027',
+      startTime,
+      normalizeTeamName(game.awayTeam),
+      normalizeTeamName(game.homeTeam)
+    ].join('|'),
+
+    season: 2027,
+    start_time: startTime,
+    away_team: game.awayTeam,
+    home_team: game.homeTeam,
+
+    projected_away_score: projection.awayScore,
+    projected_home_score: projection.homeScore,
+    projected_spread: projection.spread,
+    projected_total: projection.total,
+
+    model_pick: modelPick
+  }];
+});
+
+try {
+  const saveResponse = await fetch('/api/predictions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      action: 'save',
+      predictions: predictionsToSave
+    })
+  });
+
+  if (!saveResponse.ok) {
+    throw new Error('Prediction save failed: ' + saveResponse.status);
+  }
+
+  const saveResult = await saveResponse.json();
+
+  console.log('PREGAME PREDICTIONS:', saveResult);
+
+} catch (error) {
+  console.error('Could not save pregame predictions:', error);
+}
 const projections = futureGames.map(game => ({
   game,
   projection: projectGame(game, ratings)
