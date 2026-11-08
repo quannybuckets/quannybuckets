@@ -1300,7 +1300,7 @@ console.log('Game History loaded:', historyGames.length);
 }
 
 function showTab(name, button) {
-  ['dashboard', 'games', 'edges', 'performance'].forEach(id => {
+  ['dashboard', 'games', 'history', 'edges', 'performance'].forEach(id => {
     document.getElementById(id).hidden = id !== name;
   });
 
