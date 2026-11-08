@@ -142,7 +142,13 @@ export async function onRequest({ request, env }) {
       });
     }
 
-    
+if (upstreamResponse?.status === 429) {
+  const errorBody = await upstreamResponse.text();
+  console.error(
+    "CollegeBasketballData rate limit response:",
+    errorBody.slice(0, 500)
+  );
+}    
 return json({
   error: "Games API unavailable",
   upstreamStatus: upstreamResponse?.status || null,
