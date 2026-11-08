@@ -152,9 +152,10 @@ if (upstreamResponse?.status === 429) {
   upstreamResponse?.status === 429
     ? (await upstreamResponse.clone().text()).slice(0, 300)
     : null;   
-return json({upstreamError,
+return json({
   error: "Games API unavailable",
   upstreamStatus: upstreamResponse?.status || null,
+  upstreamError,
   rateLimit: {
     limit: upstreamResponse?.headers.get("x-ratelimit-limit") || null,
     remaining: upstreamResponse?.headers.get("x-ratelimit-remaining") || null,
