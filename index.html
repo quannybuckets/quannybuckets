@@ -741,10 +741,17 @@ const edgeHTML = topFive.length
           ${escapeHTML(item.pick)}
         </div>
 
-        <div class="recommended-projection">
-          <span>${escapeHTML(item.projectionLabel)}</span>
-          <strong>${escapeHTML(String(item.projectionValue))}</strong>
-        </div>
+        <div class="recommended-details">
+  <div class="recommended-projection">
+    <span>${escapeHTML(item.projectionLabel)}</span>
+    <strong>${escapeHTML(String(item.projectionValue))}</strong>
+  </div>
+
+  <div class="recommended-edge-value">
+    <span>MODEL EDGE</span>
+    <strong>+${item.edge.toFixed(1)} pts</strong>
+  </div>
+</div>
 
       </div>
     `).join('')
