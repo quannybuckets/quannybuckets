@@ -142,16 +142,18 @@ export async function onRequest({ request, env }) {
       });
     }
 
+ let upstreamError = null;
+
 if (upstreamResponse?.status === 429) {
-  const errorBody = await upstreamResponse.text();
-  console.error(
-    "CollegeBasketballData rate limit response:",
-    errorBody.slice(0, 500)
-  );
-} const upstreamError =
-  upstreamResponse?.status === 429
-    ? (await upstreamResponse.clone().text()).slice(0, 300)
-    : null;   
+  try {
+    upstreamError = (
+      await upstreamResponse.text()
+    ).slice(0, 300);
+  } catch (error) {
+    console.error("Could not read upstream error:", error);
+    upstreamError = "Response body unavailable";
+  }
+}
 return json({
   error: "Games API unavailable",
   upstreamStatus: upstreamResponse?.status || null,
@@ -165,9 +167,13 @@ return json({
 }, upstreamResponse?.status === 429 ? 429 : 502);
 
 
-  } catch (error) {
-    console.error("Games API error:", error);
-    return json({ error: "Could not load games" }, 500);
-  }
+ } catch (error) {
+  console.error("Games API error:", error);
+
+  return json({
+    error: "Could not load games",
+    errorType: error?.name || "UnknownError"
+  }, 500);
+}
 }
 
