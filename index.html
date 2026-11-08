@@ -718,11 +718,13 @@ const topFive = edgeCandidates
 const edgeHTML = topFive.length
   ? topFive.map((item, index) => `
       <div class="recommended-edge">
-        <div class="recommended-game">
-          #${index + 1} ${escapeHTML(item.game.awayTeam)} at ${escapeHTML(item.game.homeTeam)}
-        </div>
+        <div class="recommended-rank">
+  ${index + 1}
+</div>
 
-        <div class="recommended-pick">
+<div class="recommended-game">
+  ${escapeHTML(item.game.awayTeam)} at ${escapeHTML(item.game.homeTeam)}
+</div>
           ${escapeHTML(item.pick)}
         </div>
 
