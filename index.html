@@ -1026,19 +1026,8 @@ const historyStart = new Date(historyEnd);
 historyStart.setDate(historyStart.getDate() - 3);
 historyStart.setHours(0, 0, 0, 0);
 
-const historyParams = new URLSearchParams({
-  season: '2027',
-  startDateRange: historyStart.toISOString(),
-  endDateRange: historyEnd.toISOString()
-});
-
-const historyResponse = await fetch('/api/games?' + historyParams);
-
-if (!historyResponse.ok) {
-  throw new Error('Could not load game history');
-}
-
-const historyGamesRaw = await historyResponse.json();
+// Reuse the games already downloaded by loadGames().
+const historyGamesRaw = games;
 
 const historyGames = historyGamesRaw
   .filter(game =>
