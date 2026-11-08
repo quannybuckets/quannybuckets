@@ -722,13 +722,16 @@ const topFive = edgeCandidates
 const edgeHTML = topFive.length
   ? topFive.map((item, index) => `
       <div class="recommended-edge">
-        <div class="recommended-rank">
-  ${index + 1}
-</div>
 
-<div class="recommended-game">
-  ${escapeHTML(item.game.awayTeam)} at ${escapeHTML(item.game.homeTeam)}
-</div>
+        <div class="recommended-rank">
+          ${index + 1}
+        </div>
+
+        <div class="recommended-game">
+          ${escapeHTML(item.game.awayTeam)} at ${escapeHTML(item.game.homeTeam)}
+        </div>
+
+        <div class="recommended-pick">
           ${escapeHTML(item.pick)}
         </div>
 
@@ -736,6 +739,7 @@ const edgeHTML = topFive.length
           <span>${escapeHTML(item.projectionLabel)}</span>
           <strong>${escapeHTML(String(item.projectionValue))}</strong>
         </div>
+
       </div>
     `).join('')
   : '<div class="empty">No eligible edges with available sportsbook lines.</div>';
