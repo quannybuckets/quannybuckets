@@ -617,12 +617,10 @@ end.setUTCHours(23, 59, 59, 999);
 const ratings = await loadRatings();
 let playerStats = [];
 
-try {
-  // Player data is not currently used in game projections.
+// Player data is not currently used in game projections.
 // Avoid unnecessary CollegeBasketballData requests.
 window.teamPlayerRankings = {};
 window.teamAvailabilitySummary = {};
-}
     const teamsResponse = await fetch('/api/teams');
 
 if (!teamsResponse.ok) {
