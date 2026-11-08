@@ -611,19 +611,27 @@ function calculatePlayerImportance(player) {
 
    const games = await response.json();
 const ratings = await loadRatings();
-const playerStats = await loadPlayerStats();
-window.teamPlayerRankings = rankTeamPlayers(playerStats);
-window.teamAvailabilitySummary =
-  summarizeTeamAvailability(window.teamPlayerRankings);
+let playerStats = [];
 
-console.log(
-  'George Washington availability:',
-  window.teamAvailabilitySummary['George Washington']
-);console.log(
-  'George Washington top players:',
-  teamPlayerRankings['George Washington']?.slice(0, 5)
-);
-console.log('Player statistics loaded:', playerStats.length);
+try {
+  playerStats = await loadPlayerStats();
+
+  window.teamPlayerRankings = rankTeamPlayers(playerStats);
+
+  window.teamAvailabilitySummary =
+    summarizeTeamAvailability(window.teamPlayerRankings);
+
+  console.log('Player statistics loaded:', playerStats.length);
+
+} catch (playerError) {
+  console.warn(
+    'Player data temporarily unavailable. Continuing with game predictions.',
+    playerError
+  );
+
+  window.teamPlayerRankings = {};
+  window.teamAvailabilitySummary = {};
+}
     const teamsResponse = await fetch('/api/teams');
 
 if (!teamsResponse.ok) {
