@@ -594,8 +594,11 @@ function calculatePlayerImportance(player) {
 
   try {
     const start = new Date();
-    const end = new Date();
-    end.setDate(end.getDate() + 14);
+start.setUTCHours(0, 0, 0, 0);
+
+const end = new Date(start);
+end.setUTCDate(end.getUTCDate() + 14);
+end.setUTCHours(23, 59, 59, 999);
 
     const params = new URLSearchParams({
       season: '2027',
