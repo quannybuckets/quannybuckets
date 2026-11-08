@@ -984,6 +984,35 @@ const historyHTML = historyGames.length
       const gameStatus = String(game.status || '').toLowerCase();
       const isFinal = gameStatus === 'final';
 
+      const projection = projectGame(game, ratings);
+
+      const hasFinalScore =
+        isFinal &&
+        game.awayPoints != null &&
+        game.homePoints != null &&
+        Number.isFinite(Number(game.awayPoints)) &&
+        Number.isFinite(Number(game.homePoints));
+
+      const modelWinner = !projection
+        ? null
+        : projection.awayScore > projection.homeScore
+          ? game.awayTeam
+          : projection.homeScore > projection.awayScore
+            ? game.homeTeam
+            : 'Pick’em';
+
+      const actualWinner = !hasFinalScore
+        ? null
+        : Number(game.awayPoints) > Number(game.homePoints)
+          ? game.awayTeam
+          : game.homeTeam;
+
+      const graded = hasFinalScore &&
+        modelWinner &&
+        modelWinner !== 'Pick’em';
+
+      const correct = graded && modelWinner === actualWinner;
+
       return `
         <div class="history-game">
           <div class="history-date">
@@ -1012,6 +1041,30 @@ const historyHTML = historyGames.length
 
           <div class="history-status ${isFinal ? 'final' : 'live'}">
             ${isFinal ? 'FINAL' : 'LIVE'}
+          </div>
+
+          <div class="history-projection">
+            <strong>RECONSTRUCTED MODEL PROJECTION</strong>
+
+            ${projection ? `
+              <div class="history-projected-score">
+                ${projection.awayScore} - ${projection.homeScore}
+              </div>
+
+              <div class="history-model-pick">
+                MODEL PICK: ${escapeHTML(modelWinner)}
+              </div>
+
+              ${graded ? `
+                <div class="history-grade ${correct ? 'correct' : 'incorrect'}">
+                  ${correct ? '✓ CORRECT' : '✕ INCORRECT'}
+                </div>
+              ` : `
+                <div class="history-grade pending">
+                  ${isFinal ? 'NOT GRADED' : 'AWAITING FINAL'}
+                </div>
+              `}
+            ` : '<div>Projection unavailable</div>'}
           </div>
         </div>
       `;
