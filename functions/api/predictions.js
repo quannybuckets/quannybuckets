@@ -53,11 +53,11 @@ export async function onRequestPost({ request, env }) {
     const body = await request.json();
 
     // SAVE ORIGINAL PREGAME PREDICTIONS
-    if (body.action === "save") {
-      if (!Array.isArray(body.predictions) ||
-          body.predictions.length > 500) {
-        return json({ error: "Invalid predictions list" }, 400);
-      }
+if (body.action === "save") {
+  if (!Array.isArray(body.predictions) ||
+      body.predictions.length > 1000) {
+    return json({ error: "Invalid predictions list" }, 400);
+  }
 
       let saved = 0;
       let skipped = 0;
