@@ -48,42 +48,66 @@ border:1px dashed var(--border);border-radius:9px;line-height:1.7}
 }
 .edge-list {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.recommended-edge {
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
   gap: 12px;
+  min-width: 0;
+}
+
+.recommended-game {
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.4;
+  min-height: 42px;
 }
 
 .recommended-pick {
   background: #176B45;
   color: #ffffff;
-  padding: 16px 12px;
+  padding: 14px;
   border-radius: 999px;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 800;
   text-align: center;
+}
+
+.recommended-projection {
+  background: #26354c;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 9px 12px;
   display: flex;
-  align-items: center;
   justify-content: center;
-  min-height: 55px;
-  overflow-wrap: anywhere;
+  align-items: center;
+  gap: 6px;
+  color: #ffffff;
+  font-size: 12px;
 }
 
-@media (max-width: 900px) {
-  .edge-list {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+.recommended-projection span {
+  color: #aebdd2;
+  font-weight: 600;
 }
 
-@media (max-width: 500px) {
+.recommended-projection strong {
+  font-size: 14px;
+  color: #ffffff;
+}
+
+@media (max-width: 600px) {
   .edge-list {
     grid-template-columns: 1fr;
   }
-}
-@media(max-width:750px){
-.metrics{grid-template-columns:repeat(2,1fr)}
-.edge-list{grid-template-columns:1fr}
-header{padding:18px}
-main{padding:25px 15px}
-h1{font-size:27px}
 }
 </style>
 </head>
