@@ -661,10 +661,16 @@ console.log('Bart Torvik teams loaded:', Object.keys(ratings).length);
     const today = new Date().toLocaleDateString();
 
     const upcoming = games.filter(game => {
+  const gameDate = new Date(game.startDate);
+  const gameStatus = String(game.status || '').toLowerCase();
+
   if (
-    game.status === 'cancelled' ||
-    game.status === 'postponed'
-  ) return false;
+    !Number.isFinite(gameDate.getTime()) ||
+    gameDate <= new Date() ||
+    ['final', 'completed', 'cancelled', 'postponed'].includes(gameStatus)
+  ) {
+    return false;
+  }
 
   const lineGame = lines.find(item =>
     item.homeTeam === game.homeTeam &&
