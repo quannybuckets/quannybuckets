@@ -731,7 +731,7 @@ const favoriteInitials = favoriteTeam
   : '';
 
 const displayAwayScore = selectedLine
-  ? `${favoriteInitials} ${Math.abs(selectedLine.spread)}`
+  ? `${favoriteInitials} -${Math.abs(selectedLine.spread)}`
   : 'Odds unavailable';
 
 const displayHomeScore = selectedLine?.overUnder != null
