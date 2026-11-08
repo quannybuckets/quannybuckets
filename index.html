@@ -1019,8 +1019,11 @@ const displayHomeScore = selectedLine?.overUnder != null
   `;
 }
     // Load current-season games that have already started
-const historyStart = new Date('2026-11-01T00:00:00');
 const historyEnd = new Date();
+
+const historyStart = new Date(historyEnd);
+historyStart.setDate(historyStart.getDate() - 3);
+historyStart.setHours(0, 0, 0, 0);
 
 const historyParams = new URLSearchParams({
   season: '2027',
