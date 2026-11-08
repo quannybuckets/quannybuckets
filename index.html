@@ -751,8 +751,15 @@ try {
   });
 
   if (!saveResponse.ok) {
-    throw new Error('Prediction save failed: ' + saveResponse.status);
-  }
+  const errorBody = await saveResponse.text();
+
+  throw new Error(
+    'Prediction save failed: ' +
+    saveResponse.status +
+    ' — ' +
+    errorBody
+  );
+}
 
   const saveResult = await saveResponse.json();
 
