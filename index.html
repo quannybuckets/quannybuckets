@@ -594,9 +594,10 @@ function calculatePlayerImportance(player) {
 
   try {
     const start = new Date();
+start.setUTCDate(start.getUTCDate() - 3);
 start.setUTCHours(0, 0, 0, 0);
 
-const end = new Date(start);
+const end = new Date();
 end.setUTCDate(end.getUTCDate() + 14);
 end.setUTCHours(23, 59, 59, 999);
 
