@@ -737,7 +737,11 @@ const predictionsToSave = predictionCaptureGames.flatMap(game => {
     model_pick: modelPick
   }];
 });
-
+console.log('PREDICTIONS TO SAVE:', {
+  isArray: Array.isArray(predictionsToSave),
+  count: predictionsToSave?.length,
+  firstPrediction: predictionsToSave?.[0]
+});
 try {
   const saveResponse = await fetch('/api/predictions', {
     method: 'POST',
