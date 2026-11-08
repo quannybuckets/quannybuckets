@@ -747,37 +747,64 @@ const displayHomeScore = selectedLine?.overUnder != null
     : null;
 
   const projectionHTML = projection
-    ? `
-      <div class="projection">
-        <strong>QUANNYBUCKETS PROJECTION</strong>
-        <div>Projected Score: ${projection.awayScore} - ${projection.homeScore}</div>
-        <div>Projected Spread: ${
-          projection.spread > 0
-            ? game.homeTeam + ' -' + projection.spread
-            : game.awayTeam + ' +' + Math.abs(projection.spread)
-        }</div>
-        <div>Projected Total: ${projection.total}</div>
-        <div>Sportsbook: ${selectedLine ? selectedLine.provider : 'No line available'}</div>
-        ${selectedLine ? `
-          <div>Spread Edge: ${
-            spreadEdge > 0
-              ? 'Home +' + spreadEdge.toFixed(1)
-              : spreadEdge < 0
-                ? 'Away +' + Math.abs(spreadEdge).toFixed(1)
-                : 'No edge'
-          }</div>
-          <div>Total Edge: ${
-            totalEdge > 0
-              ? 'Over +' + totalEdge.toFixed(1)
-              : totalEdge < 0
-                ? 'Under +' + Math.abs(totalEdge).toFixed(1)
-                : 'No edge'
-          }</div>
-        ` : '<div>Sportsbook lines unavailable</div>'}
-      </div>
-    `
-    : '<div class="projection">Projection unavailable</div>';
+  ? `
+    <div class="projection">
+      <strong class="projection-heading">QUANNYBUCKETS PROJECTION</strong>
 
+      <div class="projection-score-box">
+        <span>PROJECTED SCORE</span>
+        <strong>${projection.awayScore} - ${projection.homeScore}</strong>
+      </div>
+
+      <div class="projection-metrics">
+        <div class="projection-metric spread-box">
+          <span>PROJECTED SPREAD</span>
+          <strong>${
+            projection.spread > 0
+              ? game.homeTeam + ' -' + projection.spread
+              : game.awayTeam + ' +' + Math.abs(projection.spread)
+          }</strong>
+        </div>
+
+        <div class="projection-metric total-box">
+          <span>PROJECTED TOTAL</span>
+          <strong>${projection.total}</strong>
+        </div>
+      </div>
+
+      ${selectedLine ? `
+        <div class="projection-metrics">
+          <div class="projection-metric edge-box">
+            <span>SPREAD EDGE</span>
+            <strong>${
+              spreadEdge > 0
+                ? 'Home +' + spreadEdge.toFixed(1)
+                : spreadEdge < 0
+                  ? 'Away +' + Math.abs(spreadEdge).toFixed(1)
+                  : 'No edge'
+            }</strong>
+          </div>
+
+          <div class="projection-metric edge-box">
+            <span>TOTAL EDGE</span>
+            <strong>${
+              totalEdge > 0
+                ? 'Over +' + totalEdge.toFixed(1)
+                : totalEdge < 0
+                  ? 'Under +' + Math.abs(totalEdge).toFixed(1)
+                  : 'No edge'
+            }</strong>
+          </div>
+        </div>
+      ` : '<div>Sportsbook lines unavailable</div>'}
+
+      <div class="projection-sportsbook">
+        Sportsbook: ${selectedLine ? selectedLine.provider : 'No line available'}
+      </div>
+    </div>
+  `
+  : '<div class="projection">Projection unavailable</div>';
+  
   return `
     <div class="game-card">
       <div class="game-date">${dateText} · ${timeText}</div>
