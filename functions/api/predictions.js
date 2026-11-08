@@ -45,7 +45,16 @@ export async function onRequestGet({ env }) {
 
 // Save predictions or grade completed games
 export async function onRequestPost({ request, env }) {
-  try {
+    const expectedToken = env.PREDICTIONS_WRITE_TOKEN;
+  const providedToken = request.headers.get("X-Predictions-Token");
+
+  if (!expectedToken) {
+    return json({ error: "Write authentication not configured" }, 503);
+  }
+
+  if (providedToken !== expectedToken) {
+    return json({ error: "Unauthorized" }, 401);
+  }try {
     if (!env.QB_DB) {
       return json({ error: "QB_DB binding unavailable" }, 500);
     }
