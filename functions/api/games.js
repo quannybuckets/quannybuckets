@@ -142,10 +142,18 @@ export async function onRequest({ request, env }) {
       });
     }
 
-    return json({
-      error: "Games API unavailable",
-      upstreamStatus: upstreamResponse?.status || null
-    }, upstreamResponse?.status === 429 ? 429 : 502);
+    
+return json({
+  error: "Games API unavailable",
+  upstreamStatus: upstreamResponse?.status || null,
+  rateLimit: {
+    limit: upstreamResponse?.headers.get("x-ratelimit-limit") || null,
+    remaining: upstreamResponse?.headers.get("x-ratelimit-remaining") || null,
+    reset: upstreamResponse?.headers.get("x-ratelimit-reset") || null,
+    retryAfter: upstreamResponse?.headers.get("retry-after") || null
+  }
+}, upstreamResponse?.status === 429 ? 429 : 502);
+
 
   } catch (error) {
     console.error("Games API error:", error);
