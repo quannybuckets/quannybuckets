@@ -658,18 +658,14 @@ const topFive = edgeCandidates
   .slice(0, 5);
 
 const edgeHTML = topFive.length
-  ? topFive.map((item, index) => `
-      <div class="edge">
-        <b>#${index + 1} ${item.game.awayTeam} at ${item.game.homeTeam}</b>
-        <div>${item.market}: ${item.pick}</div>
-        <div>Model-market difference: ${item.edge.toFixed(1)} points</div>
-        <small>${item.provider}</small>
+  ? topFive.map(item => `
+      <div class="recommended-pick">
+        ${item.pick}
       </div>
     `).join('')
   : '<div class="empty">No eligible edges with available sportsbook lines.</div>';
 
 document.getElementById('topEdges').innerHTML = edgeHTML;
-
 const dashboardEdges = document.querySelector('#dashboard .edge-list');
 if (dashboardEdges) {
   dashboardEdges.innerHTML = edgeHTML;
