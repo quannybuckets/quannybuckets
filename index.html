@@ -151,11 +151,12 @@ border:1px dashed var(--border);border-radius:9px;line-height:1.7}
   <p class="subtitle">Men's NCAA Division I · Predictions, projections and betting edges</p>
 
   <div class="tabs">
-    <button class="tab active" onclick="showTab('dashboard',this)">Dashboard</button>
-    <button class="tab" onclick="showTab('games',this)">All Games</button>
-    <button class="tab" onclick="showTab('edges',this)">Top 5 Edges</button>
-    <button class="tab" onclick="showTab('performance',this)">Performance</button>
-  </div>
+  <button class="tab active" onclick="showTab('dashboard',this)">Dashboard</button>
+  <button class="tab" onclick="showTab('games',this)">All Games</button>
+  <button class="tab" onclick="showTab('history',this)">Game History</button>
+  <button class="tab" onclick="showTab('edges',this)">Top 5 Edges</button>
+  <button class="tab" onclick="showTab('performance',this)">Performance</button>
+</div>
 
   <div id="dashboard">
     <div class="metrics">
@@ -198,6 +199,19 @@ border:1px dashed var(--border);border-radius:9px;line-height:1.7}
     </section>
   </div>
 
+<div id="history" hidden>
+  <section class="section">
+    <div class="section-head">
+      <h2>Game History</h2>
+      <span class="tag">DIVISION I</span>
+    </div>
+
+    <div id="gameHistory" class="history-list">
+      <div class="empty">Loading game history...</div>
+    </div>
+  </section>
+</div>
+  
  <div id="edges" hidden>
   <section class="section">
     <div class="section-head">
@@ -934,6 +948,80 @@ const displayHomeScore = selectedLine?.overUnder != null
     </div>
   `;
 }
+    // Load current-season games that have already started
+const historyStart = new Date('2026-11-01T00:00:00');
+const historyEnd = new Date();
+
+const historyParams = new URLSearchParams({
+  season: '2027',
+  startDateRange: historyStart.toISOString(),
+  endDateRange: historyEnd.toISOString()
+});
+
+const historyResponse = await fetch('/api/games?' + historyParams);
+
+if (!historyResponse.ok) {
+  throw new Error('Could not load game history');
+}
+
+const historyGamesRaw = await historyResponse.json();
+
+const historyGames = historyGamesRaw
+  .filter(game =>
+    ratings[normalizeTeamName(game.awayTeam)] &&
+    ratings[normalizeTeamName(game.homeTeam)] &&
+    new Date(game.startDate) <= historyEnd &&
+    !['cancelled', 'postponed'].includes(
+      String(game.status).toLowerCase()
+    )
+  )
+  .sort((a, b) =>
+    new Date(b.startDate) - new Date(a.startDate)
+  );
+
+const historyHTML = historyGames.length
+  ? historyGames.map(game => {
+      const gameStatus = String(game.status || '').toLowerCase();
+      const isFinal = gameStatus === 'final';
+
+      return `
+        <div class="history-game">
+          <div class="history-date">
+            ${new Date(game.startDate).toLocaleDateString()}
+          </div>
+
+          <div class="history-team">
+            <div class="team-name">
+              ${teamLogos[game.awayTeam]
+                ? `<img class="team-logo" src="${escapeHTML(teamLogos[game.awayTeam])}" alt="">`
+                : ''}
+              <strong>${escapeHTML(game.awayTeam)}</strong>
+            </div>
+            <strong class="history-score">${game.awayPoints ?? '—'}</strong>
+          </div>
+
+          <div class="history-team">
+            <div class="team-name">
+              ${teamLogos[game.homeTeam]
+                ? `<img class="team-logo" src="${escapeHTML(teamLogos[game.homeTeam])}" alt="">`
+                : ''}
+              <strong>${escapeHTML(game.homeTeam)}</strong>
+            </div>
+            <strong class="history-score">${game.homePoints ?? '—'}</strong>
+          </div>
+
+          <div class="history-status ${isFinal ? 'final' : 'live'}">
+            ${isFinal ? 'FINAL' : 'LIVE'}
+          </div>
+        </div>
+      `;
+    }).join('')
+  : '<div class="empty">No started Division I games found.</div>';
+
+document.getElementById('gameHistory').innerHTML = historyHTML;
+
+console.log('Game History loaded:', historyGames.length);
+    
     function escapeHTML(value) {
       return String(value ?? '').replace(/[&<>"']/g, char => ({
         '&': '&amp;',
