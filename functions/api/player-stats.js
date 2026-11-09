@@ -136,8 +136,13 @@ export async function onRequest({ request, env }) {
     }, result?.status === 429 ? 429 : 502);
 
   } catch (error) {
-    console.error("Player stats cache error:", error);
-    return json({ error: "Could not load player statistics" }, 500);
-  }
+  console.error("Player stats cache error:", error);
+
+  return json({
+    error: "Could not load player statistics",
+    errorType: error?.name || "Unknown",
+    errorMessage: String(error?.message || error)
+  }, 500);
+}
 }
 
