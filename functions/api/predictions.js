@@ -1,4 +1,5 @@
 
+
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
@@ -10,21 +11,27 @@ function json(data, status = 200) {
 }
 
 function validString(value, max = 300) {
-  return typeof value === "string" &&
+  return (
+    typeof value === "string" &&
     value.trim().length > 0 &&
-    value.length <= max;
+    value.length <= max
+  );
 }
 
 function validNumber(value) {
-  return typeof value === "number" &&
-    Number.isFinite(value);
+  return (
+    typeof value === "number" &&
+    Number.isFinite(value)
+  );
 }
 
-// Retrieve saved predictions
+// GET: Retrieve saved predictions
 export async function onRequestGet({ env }) {
   try {
     if (!env.QB_DB) {
-      return json({ error: "QB_DB binding unavailable" }, 500);
+      return json({
+        error: "QB_DB binding unavailable"
+      }, 500);
     }
 
     const result = await env.QB_DB.prepare(`
@@ -37,42 +44,107 @@ export async function onRequestGet({ env }) {
     return json({
       predictions: result.results || []
     });
+
   } catch (error) {
-    console.error("Prediction retrieval failed:", error);
-    return json({ error: "Could not retrieve predictions" }, 500);
+    console.error(
+      "Prediction retrieval failed:",
+      error
+    );
+
+    return json({
+      error: "Could not retrieve predictions"
+    }, 500);
   }
 }
 
-// Save predictions or grade completed games
+// POST: Save predictions or grade completed games
 export async function onRequestPost({ request, env }) {
-    const expectedToken = env.PREDICTIONS_WRITE_TOKEN;
-  const providedToken = request.headers.get("X-Predictions-Token");
+  const expectedToken = env.PREDICTIONS_WRITE_TOKEN;
+  const providedToken = request.headers.get(
+    "X-Predictions-Token"
+  );
 
   if (!expectedToken) {
-    return json({ error: "Write authentication not configured" }, 503);
+    return json({
+      error: "Write authentication not configured"
+    }, 503);
   }
 
   if (providedToken !== expectedToken) {
-    return json({ error: "Unauthorized" }, 401);
-  }try {
+    return json({
+      error: "Unauthorized"
+    }, 401);
+  }
+
+  try {
     if (!env.QB_DB) {
-      return json({ error: "QB_DB binding unavailable" }, 500);
+      return json({
+        error: "QB_DB binding unavailable"
+      }, 500);
     }
 
     const body = await request.json();
 
+    // =====================================
     // SAVE ORIGINAL PREGAME PREDICTIONS
-if (body.action === "save") {
-  if (!Array.isArray(body.predictions) ||
-      body.predictions.length > 1000) {
-    return json({ error: "Invalid predictions list" }, 400);
-  }
+    // =====================================
+
+    if (body.action === "save") {
+      if (
+        !Array.isArray(body.predictions) ||
+        body.predictions.length > 1000
+      ) {
+        return json({
+          error: "Invalid predictions list"
+        }, 400);
+      }
 
       let saved = 0;
       let skipped = 0;
 
       for (const p of body.predictions) {
+        if (!p || typeof p !== "object") {
+          skipped++;
+          continue;
+        }
+
         const start = Date.parse(p.start_time);
+
+        const hasProvider =
+          p.sportsbook_provider != null;
+
+        const hasSpread =
+          p.sportsbook_spread != null;
+
+        const hasTotal =
+          p.sportsbook_total != null;
+
+        const hasAnyOdds =
+          hasProvider || hasSpread || hasTotal;
+
+        const hasCompleteOdds =
+          hasProvider && hasSpread && hasTotal;
+
+        const validProvider =
+          !hasProvider ||
+          ["Draft Kings", "Bovada"].includes(
+            p.sportsbook_provider
+          );
+
+        const validSpread =
+          !hasSpread ||
+          validNumber(p.sportsbook_spread);
+
+        const validTotal =
+          !hasTotal ||
+          (
+            validNumber(p.sportsbook_total) &&
+            p.sportsbook_total > 0
+          );
+
+        const validVersion =
+          p.model_version == null ||
+          validString(p.model_version, 100);
 
         if (
           !validString(p.game_key) ||
@@ -86,11 +158,26 @@ if (body.action === "save") {
           !validNumber(p.projected_total) ||
           !Number.isFinite(start) ||
           start <= Date.now() ||
-          ![p.away_team, p.home_team, "Pick’em"].includes(p.model_pick)
+          ![
+            p.away_team,
+            p.home_team,
+            "Pick’em"
+          ].includes(p.model_pick) ||
+          !validProvider ||
+          !validSpread ||
+          !validTotal ||
+          !validVersion ||
+          (hasAnyOdds && !hasCompleteOdds)
         ) {
           skipped++;
           continue;
         }
+
+        // Timestamp supplied by the server,
+        // never trusted from the client.
+        const oddsCapturedAt = hasCompleteOdds
+          ? new Date().toISOString()
+          : null;
 
         const result = await env.QB_DB.prepare(`
           INSERT OR IGNORE INTO game_predictions (
@@ -103,9 +190,18 @@ if (body.action === "save") {
             projected_home_score,
             projected_spread,
             projected_total,
-            model_pick
+            model_pick,
+            sportsbook_provider,
+            sportsbook_spread,
+            sportsbook_total,
+            odds_captured_at,
+            model_version
           )
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          VALUES (
+            ?, ?, ?, ?, ?,
+            ?, ?, ?, ?, ?,
+            ?, ?, ?, ?, ?
+          )
         `).bind(
           p.game_key,
           p.season,
@@ -116,7 +212,18 @@ if (body.action === "save") {
           p.projected_home_score,
           p.projected_spread,
           p.projected_total,
-          p.model_pick
+          p.model_pick,
+          hasCompleteOdds
+            ? p.sportsbook_provider
+            : null,
+          hasCompleteOdds
+            ? p.sportsbook_spread
+            : null,
+          hasCompleteOdds
+            ? p.sportsbook_total
+            : null,
+          oddsCapturedAt,
+          p.model_version ?? null
         ).run();
 
         if (result.meta?.changes > 0) {
@@ -126,19 +233,34 @@ if (body.action === "save") {
         }
       }
 
-      return json({ success: true, saved, skipped });
+      return json({
+        success: true,
+        saved,
+        skipped
+      });
     }
 
-    // GRADE GAMES AFTER FINAL SCORES ARRIVE
+    // =====================================
+    // GRADE COMPLETED GAMES
+    // =====================================
+
     if (body.action === "grade") {
-      if (!Array.isArray(body.results) ||
-          body.results.length > 500) {
-        return json({ error: "Invalid results list" }, 400);
+      if (
+        !Array.isArray(body.results) ||
+        body.results.length > 500
+      ) {
+        return json({
+          error: "Invalid results list"
+        }, 400);
       }
 
       let graded = 0;
 
       for (const game of body.results) {
+        if (!game || typeof game !== "object") {
+          continue;
+        }
+
         if (
           !validString(game.game_key) ||
           String(game.status).toLowerCase() !== "final" ||
@@ -154,9 +276,10 @@ if (body.action === "save") {
           continue;
         }
 
-        const winner = game.away_score > game.home_score
-          ? game.away_team
-          : game.home_team;
+        const winner =
+          game.away_score > game.home_score
+            ? game.away_team
+            : game.home_team;
 
         const result = await env.QB_DB.prepare(`
           UPDATE game_predictions
@@ -165,13 +288,16 @@ if (body.action === "save") {
             actual_home_score = ?,
             actual_status = 'final',
             winner_correct = CASE
-              WHEN model_pick = 'Pick’em' THEN NULL
-              WHEN model_pick = ? THEN 1
+              WHEN model_pick = 'Pick’em'
+                THEN NULL
+              WHEN model_pick = ?
+                THEN 1
               ELSE 0
             END,
             graded_at = CURRENT_TIMESTAMP
           WHERE game_key = ?
             AND start_time <= ?
+            AND graded_at IS NULL
         `).bind(
           game.away_score,
           game.home_score,
@@ -183,13 +309,25 @@ if (body.action === "save") {
         graded += result.meta?.changes || 0;
       }
 
-      return json({ success: true, graded });
+      return json({
+        success: true,
+        graded
+      });
     }
 
-    return json({ error: "Unknown action" }, 400);
+    return json({
+      error: "Unknown action"
+    }, 400);
 
   } catch (error) {
-    console.error("Prediction API error:", error);
-    return json({ error: "Prediction database operation failed" }, 500);
+    console.error(
+      "Prediction API error:",
+      error
+    );
+
+    return json({
+      error: "Prediction database operation failed"
+    }, 500);
   }
 }
+
