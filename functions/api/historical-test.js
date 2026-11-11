@@ -9,9 +9,9 @@ export async function onRequestGet() {
 
     return Response.json({
       status: response.status,
-      length: html.length,
-      containsMichigan: html.includes('Michigan'),
-      containsAdjOE: html.includes('ADJOE')
+      finalUrl: response.url,
+      contentType: response.headers.get('content-type'),
+      body: html.slice(0, 1000)
     });
   } catch (error) {
     return Response.json({
