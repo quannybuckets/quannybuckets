@@ -558,7 +558,8 @@ function calculatePlayerImportance(player) {
 
   return summary;
 }
-  function projectGame(game, ratings) {
+  
+function projectGame(game, ratings) {
   const away = ratings[normalizeTeamName(game.awayTeam)];
   const home = ratings[normalizeTeamName(game.homeTeam)];
 
@@ -566,7 +567,12 @@ function calculatePlayerImportance(player) {
     return null;
   }
 
-  const possessions = (away.tempo + home.tempo) / 2;
+  // Apply the validated 0.90 possession calibration
+  const possessions =
+    ((away.tempo + home.tempo) / 2) * 0.90;
+
+  // Remove home-court advantage for neutral-site games
+  const homeAdvantage = game.neutralSite ? 0 : 2.5;
 
   const awayPoints =
     possessions / 100 *
@@ -574,9 +580,10 @@ function calculatePlayerImportance(player) {
 
   const homePoints =
     possessions / 100 *
-    (home.offense * away.defense / 100) + 2.5;
+    (home.offense * away.defense / 100) +
+    homeAdvantage;
 
-    return {
+  return {
     awayScore: Math.round(awayPoints),
     homeScore: Math.round(homePoints),
     spread: Math.round(homePoints - awayPoints),
@@ -584,6 +591,7 @@ function calculatePlayerImportance(player) {
     possessions: Math.round(possessions)
   };
 }
+
   async function loadGames() {
   const status = document.querySelector('.status');
   const dashboardEmpty = document.querySelector('#dashboard .empty');
