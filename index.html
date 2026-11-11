@@ -567,9 +567,9 @@ function projectGame(game, ratings) {
     return null;
   }
 
-  // Apply the validated 0.905 possession calibration
+  // Apply the validated 0.90 possession calibration
   const possessions =
-    ((away.tempo + home.tempo) / 2) * 0.905;
+    ((away.tempo + home.tempo) / 2) * 0.95;
 
   // Remove home-court advantage for neutral-site games
   const homeAdvantage = game.neutralSite ? 0 : 2.5;
